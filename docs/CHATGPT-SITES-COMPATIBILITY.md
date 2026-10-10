@@ -10,7 +10,7 @@ The handoff file named `BETTER_WARDROBE_HACKATHON_HANDOFF.md` was not present in
 - The public ChatGPT Site is `https://wardrobeos-hackathon.ayan-ayan-choudhary.chatgpt.site`.
 - Its manifest selects only the root `dist/` directory. That directory is a static project walkthrough, not the application. The application is under `prototype/dist/` and its API server is under `prototype/`.
 - The Site is currently public. No auth, database, or provider behavior has been verified on the Site because the app is not what it serves.
-- The clone's current first-party app navigation and core modules can be rendered independently. Discover, Mall, Community, and the existing Profile route are now separate tabs in the source app. Existing module event handlers and backend calls are retained.
+- The first-party app is a Vercel Node application. Its cloned UI keeps the original Discover, My Wardrobe, Style Me, and My Profile navigation. Community remains part of Discover, as in the existing app.
 
 ## Compatibility findings
 
@@ -25,10 +25,8 @@ The handoff file named `BETTER_WARDROBE_HACKATHON_HANDOFF.md` was not present in
 
 ## Decision
 
-The four-tab change is limited to client-side routing/rendering. Authentication, Profile, API routes, providers, database schemas, and security checks were not rewritten. The current Site remains a walkthrough and must not be presented as the full authenticated application.
-
-Before hosting the real app on ChatGPT Sites, agree on a compatibility path for its API/database runtime and OAuth callback. The minimum safe options to assess are a Worker adapter using an HTTP-capable connection to the existing database, or keeping the existing API on its current host and designing a narrowly scoped, credentialed cross-origin integration. Neither has been applied. No model or Decision API calls were added; provider selection remains pending owner input.
+The owner chose to keep this clone on the existing Vercel architecture. No ChatGPT Sites migration, navigation redesign, authentication change, or API/database rewrite is planned. The original UI, routes, Profile, auth, providers, and server integrations stay in place. Decision API work will be limited to backend behavior after the owner selects the model and retrieval providers. No model calls or API credits have been used for that work.
 
 ## Verification limits
 
-Repository tests can validate route rendering and preserve existing server tests. They cannot prove ChatGPT Sites OAuth, cookie, database, or provider compatibility. Those require an isolated Site preview, authorized Google redirect configuration, and a non-production database. Live provider calls and credit use are intentionally out of scope for this audit.
+The compatibility notes above describe why a platform migration would require more work. The existing Vercel deployment is the target for this clone. No live ChatGPT Sites OAuth, cookie, database, or provider validation was performed; live provider calls and credit use remain out of scope until the Decision API choices are provided.

@@ -35,3 +35,22 @@ test('Mall map uses the interior floor plan and keeps all district entrances, vi
  assert.match(html,/aria-label="Enter Graphics, 1 stores"/);assert.match(html,/data-studio="mall-view" data-value="list"/);
  assert.doesNotMatch(html,/data-tilt/);
 });
+
+test('fashion thumbnails respect gender-specific districts and show both ethnic traditions',()=>{
+ const {ui}=studio();
+ const mens=ui.fashionArt('Menswear and smart casual');
+ assert.equal((mens.match(/data-fashion-gender="male"/g)||[]).length,2);
+ assert.doesNotMatch(mens,/data-fashion-gender="female"/);
+ const women=ui.fashionArt('Contemporary and womenswear');
+ assert.equal((women.match(/data-fashion-gender="female"/g)||[]).length,2);
+ assert.doesNotMatch(women,/data-fashion-gender="male"/);
+ const ethnic=ui.fashionArt('Ethnic and craft');
+ assert.match(ethnic,/data-fashion-gender="male" data-fashion-outfit="kurta"/);
+ assert.match(ethnic,/data-fashion-gender="female" data-fashion-outfit="saree"/);
+ assert.doesNotMatch(ui.fashionArt('Ethnic and craft','Sarees'),/data-fashion-gender="male"/);
+ assert.equal((ui.fashionArt('Ethnic and craft','Kurtas & sets').match(/data-fashion-outfit="kurta"/g)||[]).length,2);
+ assert.match(ethnic,/aria-hidden="true"/);assert.doesNotMatch(ethnic,/<img|https?:/);
+ assert.match(ui.fashionArt('Fandom and graphics'),/data-fashion-outfit="graphic"/);
+ assert.match(ui.fashionArt('Streetwear and denim'),/data-fashion-outfit="hoodie"/);
+ assert.match(ui.fashionArt('Activewear and inclusive fits'),/data-fashion-outfit="sport"/);
+});

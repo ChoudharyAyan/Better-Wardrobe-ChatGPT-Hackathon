@@ -24,23 +24,26 @@ test('shared questions, screening, votes and XP spotlight persist across guests'
  try{
   const asker=await session(),helper=await session();
   assert.notEqual(asker.cookie,helper.cookie);
+  assert.equal(asker.feed.viewer.wallet.balance,50,'each new visitor receives the promotional wallet balance once');
   const question=await call(asker.cookie,'/api/community/questions',{author:'Ayan',title:'Where can I find brown aviator sunglasses?',detail:'Brown tinted aviator sunglasses with gold frames, as seen in F1.',kind:'Find this',contextTitle:'F1'});
   assert.equal(question.status,200);const id=question.body.question.id;
   const seen=await fetch(base+'/api/community',{headers:{Cookie:helper.cookie}}).then(r=>r.json());assert.equal(seen.questions[0].id,id);assert.equal(seen.questions[0].mine,false);
-  const weak=await call(helper.cookie,`/api/community/questions/${id}/answers`,{author:'Maya',text:'Try this totally different white hoodie instead.'});assert.equal(weak.status,200);assert.equal(weak.body.screening.status,'needs_detail');assert.equal(weak.body.feed.viewer.wallet.balance,0);
+  const weak=await call(helper.cookie,`/api/community/questions/${id}/answers`,{author:'Maya',text:'Try this totally different white hoodie instead.'});assert.equal(weak.status,200);assert.equal(weak.body.screening.status,'needs_detail');assert.equal(weak.body.feed.viewer.wallet.balance,50);
   const pixel='data:image/png;base64,'+(await sharp({create:{width:2,height:2,channels:3,background:'#6b4f33'}}).png().toBuffer()).toString('base64');
   const good=await call(helper.cookie,`/api/community/questions/${id}/answers`,{author:'Maya',text:'Brown tinted aviator sunglasses with a gold frame may be at this store.',url:'https://shop.example/brown-aviator-sunglasses',image:pixel});
-  assert.equal(good.body.screening.status,'published');assert.equal(good.body.feed.viewer.wallet.balance,10);assert.equal(good.body.feed.questions[0].answerCount,1);
+  assert.equal(good.body.screening.status,'published');assert.equal(good.body.feed.viewer.wallet.balance,60);assert.equal(good.body.feed.questions[0].answerCount,1);
   const answerId=good.body.feed.questions[0].answers[0].id;assert.match(good.body.feed.questions[0].answers[0].image,/^data:image\/webp;base64,/);
   const self=await call(helper.cookie,`/api/community/answers/${answerId}/vote`,{vote:1});assert.equal(self.status,403);
   const vote=await call(asker.cookie,`/api/community/answers/${answerId}/vote`,{vote:1});assert.equal(vote.body.feed.questions[0].answers[0].votes,1);
   const repeat=await call(asker.cookie,`/api/community/answers/${answerId}/vote`,{vote:1});assert.equal(repeat.body.feed.questions[0].answers[0].votes,1);
-  const poor=await call(asker.cookie,`/api/community/questions/${id}/spotlight`,{});assert.equal(poor.status,400);
+  const spotlight=await call(asker.cookie,`/api/community/questions/${id}/spotlight`,{});assert.equal(spotlight.status,200);assert.equal(spotlight.body.feed.viewer.wallet.balance,30);
   const persisted=JSON.parse(await readFile(path.join(dir,'community.json'),'utf8'));assert.equal(persisted.questions.length,1);assert.equal(persisted.answers.length,2);
  }finally{server.closeAllConnections?.();await new Promise(r=>server.close(r));await service.close();}
 });
 
-test('production without a database fails closed rather than inventing shared state',async()=>{
+test('production without a database serves read-only sample threads and rejects writes',async()=>{
  const service=createCommunity({env:{VERCEL:'1'}});
- await assert.rejects(()=>service.handle({headers:{},socket:{}},'/api/community',{}),e=>e.status===503);
+ const feed=await service.handle({method:'GET',headers:{},socket:{}},'/api/community',{});
+ assert.equal(feed.data.ready,false);assert.equal(feed.data.questions.length,3);assert.equal(feed.data.questions[0].title,'Ananya Pandey’s Filmfare gown');
+ await assert.rejects(()=>service.handle({method:'POST',headers:{},socket:{}},'/api/community/questions',{}),e=>e.status===503);
 });

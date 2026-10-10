@@ -1,0 +1,10 @@
+import {createOpenAI} from './openai.mjs';
+import {createSpend} from './spend.mjs';
+export const garmentQuestions=({category,subtype='',department='',features='',colour=''}={})=>[
+ {name:'same_category',type:'predicate',instructions:`The product is a ${category||'garment'}${subtype?` (${subtype})`:''}, not a different clothing or accessory category.`},
+ ...(department&&department!=='unisex'?[{name:'department_ok',type:'predicate',instructions:`The garment is designed for ${department} or is clearly unisex.`}]:[]),
+ ...(features?[{name:'has_essentials',type:'predicate',instructions:`The item visibly has all of these requested details: ${features}. Missing or conflicting details make this false.`}]:[]),
+ ...(colour?[{name:'colour',type:'score',instructions:`Compare the visible garment colour with the requested colour: ${colour}.`,levels:[{label:'different',description:'A clearly different colour.'},{label:'near',description:'Same broad colour family, but a noticeably different shade.'},{label:'match',description:'The requested colour is visibly a close match.'}]}]:[]),
+ {name:'closeness',type:'score',instructions:'How closely does this product match the garment request by silhouette, fit, pattern, and visible details?',levels:[{label:'unrelated',description:'Not a useful match.'},{label:'loosely related',description:'Same general use, but important differences.'},{label:'similar style',description:'Most defining traits match.'},{label:'very close',description:'Strong visual and attribute match.'}]}
+];
+export function createDecisions({env=process.env,client=createOpenAI({apiKey:env.OPENAI_API_KEY,timeoutMs:Number(env.DECISIONS_TIMEOUT_MS)||4000}),spend=createSpend({env}),model=env.DECISIONS_MODEL||'gpt-6-luna'}={}){return {async evaluate({input,questions,signal}={}){if(!input||!Array.isArray(questions)||!questions.length)throw Object.assign(Error('Decision input and questions are required.'),{status:400});return spend.run({endpoint:'decisions',model,maxInputTokens:Number(env.DECISIONS_MAX_INPUT_TOKENS)||200000,signal},s=>client.decide({model,input,questions},s));}};}

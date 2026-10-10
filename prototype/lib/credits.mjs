@@ -49,8 +49,8 @@ export function createCredits({env=process.env,store,now=Date.now,fetcher=fetch,
  // prepaid OpenRouter balance still bound spend.
  // Under node --test, never touch the developer's real ledger file.
  store??=connection?postgresStore(connection):env.VERCEL||process.env.NODE_TEST_CONTEXT?memoryStore():fileStore(file);
- const allowance=Math.max(0,Number(env.DISCOVER_GUEST_CREDITS)||120);
- const ipDaily=Math.max(allowance,Number(env.DISCOVER_IP_DAILY_CREDITS)||allowance*3);
+ const baseAllowance=Math.max(0,Number(env.DISCOVER_GUEST_CREDITS)||120),promoCredits=env.VERCEL&&!connection?0:50,allowance=baseAllowance+promoCredits;
+ const ipDaily=Math.max(baseAllowance,Number(env.DISCOVER_IP_DAILY_CREDITS)||allowance*3);
  // ~40 Gemini 3 Flash searches a day across everyone, sized to a few dollars of prepaid OpenRouter credit.
  const globalDaily=Math.max(0,Number(env.DISCOVER_DAILY_CREDIT_CAP)||600);
  // Pause all AI before the prepaid balance runs dry, so a demo never ends in raw provider errors.
@@ -60,7 +60,7 @@ export function createCredits({env=process.env,store,now=Date.now,fetcher=fetch,
  const sign=v=>createHmac('sha256',secret).update(v).digest('hex').slice(0,32);
  const keys=(guest,ip)=>({guest:'guest:'+sha(guest).slice(0,32),ip:'ip:'+sha('ip|'+secret+'|'+ip).slice(0,24)+':'+day(now),global:'global:'+day(now)});
  const costOf=model=>MODELS[modelKey(model)].credits;
- const summary=async guest=>{const remaining=Math.max(0,allowance-await store.get(keys(guest,'').guest));return {allowance,remaining,costs:Object.fromEntries(Object.entries(MODELS).map(([id,m])=>[id,m.credits]))};};
+ const summary=async guest=>{const used=await store.get(keys(guest,'').guest);const remaining=Math.max(0,allowance-used);return {allowance,remaining,promoCredits:Math.max(0,promoCredits-used),costs:Object.fromEntries(Object.entries(MODELS).map(([id,m])=>[id,m.credits]))};};
  // Real balance = credits bought − credits used (GET /api/v1/credits), not a key's spending limit.
  async function balance(){
   if(!env.OPENROUTER_API_KEY)return null;

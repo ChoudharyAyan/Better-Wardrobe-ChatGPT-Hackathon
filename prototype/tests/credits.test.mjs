@@ -5,26 +5,26 @@ import {createServer} from '../server.mjs';
 
 const memory=()=>{const m=new Map();return {async add(k,a,l){const n=(m.get(k)||0)+a;if(n>l)return null;m.set(k,n);return n;},async sub(k,a){m.set(k,Math.max(0,(m.get(k)||0)-a));},async get(k){return m.get(k)||0;}};};
 
-test('120 credits buy exactly 8 Gemini 3 Flash or 15 GPT-5 nano searches',async()=>{
- for(const [model,expected] of [['gemini-3-flash',8],['gpt-5-nano',15]]){
+test('170 credits include the 50-point new-account bonus',async()=>{
+ for(const [model,expected] of [['gemini-3-flash',11],['gpt-5-nano',21]]){
   const c=createCredits({env:{},store:memory()});let n=0;
   while(true){try{await c.charge({guest:'g',ip:'1.1.1.1',model});n++;}catch(e){assert.equal(e.status,429);assert.equal(e.reason,'guest');break;}}
   assert.equal(n,expected,model);
  }
  const mixed=createCredits({env:{},store:memory()});
  for(let i=0;i<4;i++)await mixed.charge({guest:'g',ip:'ip',model:'gemini-3-flash'});
- assert.equal((await mixed.summary('g')).remaining,60);
- assert.equal((await mixed.charge({guest:'g',ip:'ip',model:'gpt-5-nano'})).remaining,52,'mixing models draws from one wallet');
+ assert.equal((await mixed.summary('g')).remaining,110);
+ assert.equal((await mixed.charge({guest:'g',ip:'ip',model:'gpt-5-nano'})).remaining,102,'mixing models draws from one wallet');
 });
 
 test('failed searches are refunded, and the IP and daily caps hold even with new guests',async()=>{
  const c=createCredits({env:{DISCOVER_IP_DAILY_CREDITS:'150',DISCOVER_DAILY_CREDIT_CAP:'200'},store:memory()});
  await c.charge({guest:'a',ip:'9.9.9.9',model:'gemini-3-flash'});await c.refund({guest:'a',ip:'9.9.9.9',model:'gemini-3-flash'});
- assert.equal((await c.summary('a')).remaining,120,'a failed search costs nothing');
+ assert.equal((await c.summary('a')).remaining,170,'a failed search costs nothing');
  // Clearing cookies (new guest ids) on one network stops at the IP's daily allowance: 150 credits = 10 Gemini searches.
  let n=0;for(let i=0;i<20;i++){try{await c.charge({guest:'cookie-'+i,ip:'9.9.9.9',model:'gemini-3-flash'});n++;}catch(e){assert.equal(e.reason,'ip');break;}}
  assert.equal(n,10);
- assert.equal((await c.summary('cookie-10')).remaining,120,'the guest refused by the IP cap was not charged');
+ assert.equal((await c.summary('cookie-10')).remaining,170,'the guest refused by the IP cap was not charged');
  // The daily cap across everyone: 200 credits, 150 already used on that network.
  n=0;for(let i=0;i<20;i++){try{await c.charge({guest:'other-'+i,ip:'10.0.0.'+i,model:'gemini-3-flash'});n++;}catch(e){assert.equal(e.reason,'global');break;}}
  assert.equal(n,3);
@@ -50,16 +50,16 @@ test('the server charges on asking, hands back a ticket, gates shopping search o
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
  try{
   const first=await fetch(base+'/api/discover/credits');const cookie=first.headers.get('set-cookie').split(';')[0];
-  assert.match(cookie,/^tbw_community=[a-f0-9]{48}$/);const wallet=await first.json();assert.equal(wallet.remaining,120);assert.equal(wallet.models.length,2);
+  assert.match(cookie,/^tbw_community=[a-f0-9]{48}$/);const wallet=await first.json();assert.equal(wallet.remaining,170);assert.equal(wallet.promoCredits,50);assert.equal(wallet.models.length,2);
   const post=(path,body)=>fetch(base+path,{method:'POST',headers:{'Content-Type':'application/json',Cookie:cookie},body:JSON.stringify(body)});
   const asked=await (await post('/api/discover/interpret',{text:'shirt',model:'gpt-5-nano'})).json();
-  assert.equal(asked.model,'gpt-5-nano');assert.equal(asked.credits.remaining,112);assert.equal(asked.credits.cost,8);assert.ok(asked.turn);
+  assert.equal(asked.model,'gpt-5-nano');assert.equal(asked.credits.remaining,162);assert.equal(asked.credits.cost,8);assert.ok(asked.turn);
   assert.equal((await post('/api/discover/search',{query:'shirt'})).status,403,'no ticket, no shopping search');
   assert.equal((await post('/api/discover/search',{query:'shirt',turn:asked.turn})).status,200);
   assert.equal((await post('/api/discover/interpret',{text:'shirt',model:'opus-max'})).status,200);
-  assert.equal((await (await fetch(base+'/api/discover/credits',{headers:{Cookie:cookie}})).json()).remaining,97,'unknown model is billed as the default (15)');
+  assert.equal((await (await fetch(base+'/api/discover/credits',{headers:{Cookie:cookie}})).json()).remaining,147,'unknown model is billed as the default (15)');
   fail=true;assert.equal((await post('/api/discover/interpret',{text:'shirt'})).status,502);
-  assert.equal((await (await fetch(base+'/api/discover/credits',{headers:{Cookie:cookie}})).json()).remaining,97,'the failed call was refunded');
+  assert.equal((await (await fetch(base+'/api/discover/credits',{headers:{Cookie:cookie}})).json()).remaining,147,'the failed call was refunded');
  }finally{await new Promise(r=>server.close(r));}
 });
 
@@ -73,7 +73,7 @@ test('AI pauses below the minimum OpenRouter balance, reading the real balance, 
  const unreachable=createCredits({env:{OPENROUTER_API_KEY:'k'},store:memory(),fetcher:async()=>{throw Error('offline');}});
  await unreachable.budgetOk();
  const pinnedGemini=createCredits({env:{OPENROUTER_API_KEY:'k',VISION_PROVIDER:'gemini'},store:memory(),fetcher:async()=>assert.fail('not checked')});await pinnedGemini.budgetOk();
- assert.equal(createCredits({env:{},store:memory()}).allowance,120);
+ assert.equal(createCredits({env:{},store:memory()}).allowance,170);
 });
 test('the default daily cap across everyone is about 40 Gemini searches',async()=>{
  const c=createCredits({env:{},store:memory()});let n=0;
@@ -110,7 +110,7 @@ test('a question with no fashion in it is free and unlocks no search',async()=>{
  try{
   const first=await fetch(base+'/api/discover/credits');const cookie=first.headers.get('set-cookie').split(';')[0];
   const r=await (await fetch(base+'/api/discover/interpret',{method:'POST',headers:{'Content-Type':'application/json',Cookie:cookie},body:JSON.stringify({text:"Let's solve a differential equation",model:'gpt-5-nano'})})).json();
-  assert.deepEqual(r.credits,{remaining:120,cost:0});assert.equal(r.turn,undefined);
-  assert.equal((await (await fetch(base+'/api/discover/credits',{headers:{Cookie:cookie}})).json()).remaining,120);
+  assert.deepEqual(r.credits,{remaining:170,cost:0});assert.equal(r.turn,undefined);
+  assert.equal((await (await fetch(base+'/api/discover/credits',{headers:{Cookie:cookie}})).json()).remaining,170);
  }finally{await new Promise(r=>server.close(r));}
 });

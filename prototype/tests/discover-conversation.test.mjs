@@ -9,8 +9,8 @@ test('Discover opens as a prompt-first conversation, not an image-only upload',(
  const listeners={};const context={window:{},document:{addEventListener:(event,fn)=>{listeners[event]=fn;},getElementById:()=>null}};
  vm.runInNewContext(script,context);
  const html=context.window.DiscoverConversation.render();
- assert.match(html,/Tell me what you’re looking for/);
- assert.match(html,/Describe a piece, add a screenshot, or use both/);
+ assert.match(html,/Describe a garment you want to find/);
+ assert.match(html,/Add details, a screenshot, or both/);
  assert.match(html,/dc-image-input/);
  assert.match(html,/dc-text/);
  assert.ok(listeners.submit&&listeners.change&&listeners.click);

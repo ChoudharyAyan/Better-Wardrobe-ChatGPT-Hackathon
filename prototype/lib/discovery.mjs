@@ -5,6 +5,7 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import sharp from 'sharp';
 import {colourGate} from './colour.mjs';
 import {lookById,matchLook} from './looks.mjs';
+import {createDecisions,garmentQuestions} from './decisions.mjs';
 const VISION_MAX_DIMENSION=512;
 async function resizeForVision(data,mimeType){
  try{
@@ -119,8 +120,9 @@ const orderSchema=objectSchema({retailer:string,items:{type:'array',items:object
 export const localDataDirectory=process.env.VERCEL?new URL('file:///tmp/better-wardrobe/'):new URL('../.local-data/',import.meta.url);
 const replayDirectory=localDataDirectory;const replayFile=new URL('discovery-replays.json',replayDirectory);
 function localReplayStore(){let loaded=false,data={};async function load(){if(loaded)return;loaded=true;try{data=JSON.parse(await readFile(replayFile,'utf8'));}catch{data={};}}return {async get(key){await load();return data[key]||null;},async set(key,value){await load();data[key]=value;const entries=Object.entries(data);if(entries.length>50)data=Object.fromEntries(entries.slice(-50));await mkdir(replayDirectory,{recursive:true});await writeFile(replayFile,JSON.stringify(data));}};}
-export function createDiscovery({env=process.env,fetcher=fetch,pageFetcher=retailerPage,imageFetcher=url=>retailerPage(url,0,true),now=Date.now,replayStore=localReplayStore()}={}){
+export function createDiscovery({env=process.env,fetcher=fetch,pageFetcher=retailerPage,imageFetcher=url=>retailerPage(url,0,true),now=Date.now,replayStore=localReplayStore(),openAIClient}={}){
  const cache=new Map();const uploads=new Map();let active=0,windowStart=now(),calls=0;
+ const decisions=createDecisions({env,client:openAIClient});
  const visionProvider=['ollama','gemini','openrouter'].includes(env.VISION_PROVIDER)?env.VISION_PROVIDER:env.OPENROUTER_API_KEY?'openrouter':'gemini';
  const developerDashboard=env.DEVELOPER_DASHBOARD==='true';const telemetry={startedAt:new Date(now()).toISOString(),requests:[],searches:[]};
  const remember=(bucket,event,limit)=>{telemetry[bucket].unshift(event);telemetry[bucket]=telemetry[bucket].slice(0,limit);};
@@ -305,6 +307,18 @@ export function createDiscovery({env=process.env,fetcher=fetch,pageFetcher=retai
  }else warnings.push('Image comparison is needed to confirm matches. Add a crop and try again when it is available.');
  const unassessed=candidates.filter(p=>p.score===null).length;
  const relatedFallback=candidates.filter(p=>p.score===null&&p.image).sort((a,b)=>(Number(b.market===market)-Number(a.market===market))||(Number(b.source==='lens')-Number(a.source==='lens'))).slice(0,8).map(p=>({...p,eligible:true,score:null,match:'Similar shape',reasons:['Found from the selected garment and confirmed search details.']}));
+ if(!body.image&&env.DECISIONS_RANK==='1'&&env.OPENAI_API_KEY&&candidates.some(p=>p.image)){
+  const batch=candidates.filter(p=>p.image).slice(0,8);
+  try{
+   const content=[{type:'input_text',text:`Compare these catalog items with this exact garment request: ${JSON.stringify({category:a.category,subtype:intent.subtype,colour:a.colour,fit:a.fit,pattern:a.pattern,details:a.details,department:a.department,features:intent.essential})}. Each following image is paired with its item number and title. Judge the item image only, not the model or background.`}];
+   batch.forEach((p,i)=>content.push({type:'input_text',text:`ITEM ${i+1}: ${p.title}`},{type:'input_image',image_url:p.image,detail:'low'}));
+   const questions=batch.flatMap((p,i)=>garmentQuestions(a).map(q=>({...q,name:`item_${i+1}_${q.name}`,instructions:`For ITEM ${i+1} (${p.title}): ${q.instructions}`})));
+   const judged=await decisions.evaluate({input:[{role:'user',content}],questions,signal});
+   const answers=Object.fromEntries((judged.answers||[]).map(x=>[x.name,x]));trace.decisionsAssessed=0;
+   batch.forEach((p,i)=>{const category=answers[`item_${i+1}_same_category`]?.probability,closeness=answers[`item_${i+1}_closeness`]?.score,colourScore=answers[`item_${i+1}_colour`]?.score,dept=answers[`item_${i+1}_department_ok`]?.probability,features=answers[`item_${i+1}_has_essentials`]?.probability;if(!Number.isFinite(closeness))return;trace.decisionsAssessed++;p.score=Math.round(Math.max(0,Math.min(3,closeness))/3*100);p.eligible=(category??0)>=0.6&&(dept===undefined||dept>=0.5)&&(features===undefined||features>=0.5)&&(colourScore===undefined||colourScore>=0.8)&&closeness>=1;p.match=closeness>=2.5?'Very close vibe':'Similar vibe';p.reasons=['Checked against the garment details you entered.'];});
+   candidates=candidates.filter(p=>p.eligible);
+  }catch{warnings.push('AI result checks were unavailable; showing related leads.');}
+ }
  candidates=candidates.filter(p=>p.eligible);
  if(!candidates.length&&relatedFallback.length){candidates=relatedFallback;trace.usedRelatedFallback=true;warnings.push('Showing related visual leads because no candidate completed strict Vibe Match verification.');}
  candidates=candidates.filter(p=>p.page?.stock!=='OutOfStock').filter(p=>budget===null||p.market!==market||p.price===null||p.price<=budget).sort((a,b)=>((b.score??-1)-(a.score??-1))||(Number(b.market===market)-Number(a.market===market)));if(market==='in'){const domestic=candidates.filter(p=>p.market==='in'),worldwide=candidates.filter(p=>p.market==='global');candidates=domestic.length?[...domestic.slice(0,11),...worldwide.slice(0,1)]:worldwide.slice(0,12);}

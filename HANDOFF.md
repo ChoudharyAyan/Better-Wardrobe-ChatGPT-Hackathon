@@ -1,5 +1,16 @@
 # Current state — 8 October 2026
 
+## Hackathon clone update (10 October 2026)
+
+- Current branch for the owner-approved Decisions foundation: `codex/decisions-api-foundation`, based on `origin/main` at `138e181`. The original navigation and profile journey are preserved.
+- Discover now says **“Describe a garment you want to find.”** Trending look suggestions use an aligned responsive grid.
+- Optional typed-search ranking uses the OpenAI Decisions endpoint (`gpt-6-luna`) behind `DECISIONS_RANK=1`; it scores up to eight product thumbnails, applies garment/category/colour/closeness checks, and leaves the existing related-result fallback in place if the call fails.
+- Every Decisions request reserves up to 200,000 input tokens before calling OpenAI. The in-app hard stop is $45 of the $50 grant. Vercel requires a durable hackathon Postgres database for this ledger; without it, OpenAI calls fail closed. Never point the clone at the original Wardrobe OS production database.
+- New identities receive 50 promotional XP/Discover credits when the server has durable credit storage. One XP equals one Discover credit. On Vercel without Postgres, the app disables that award and Community posting, and shows three read-only sample threads with bundled images.
+- The three Community examples are Ananya Pandey’s Filmfare gown, Brad Pitt’s F1 shirt and Don Draper’s sunglasses. They are labelled as examples, not live user posts.
+- No OpenAI key is in this repository. Before a live Decisions test, add `OPENAI_API_KEY`, a dedicated hackathon `POSTGRES_URL` (or `OPENAI_SPEND_DATABASE_URL`), `SERPAPI_API_KEY`, and then enable `DECISIONS_RANK=1` in the `better-wardrobe-hackathon` Vercel project. Keep the OpenAI project spend cap at $50. Keys must be entered directly in Vercel, never pasted into chat or Git.
+- This branch does not yet migrate interpretation/image analysis from the existing providers to OpenAI Responses. That migration is separate work and should only proceed after model choice, API setup and budget behavior are verified.
+
 Read this section first. Everything below "Development Handoff (16 September
 2026)" is historical background: it predates OpenRouter, accounts, the
 rename and the domains, and its run instructions (Ollama default, the old

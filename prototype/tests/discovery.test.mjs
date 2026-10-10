@@ -120,6 +120,15 @@ test('wrong type, conflicting details and weak matches are excluded; no unscored
  const stages=[];const out=await d.search({attributes:attr,image,market:'us'},p=>stages.push(p.percent));assert.equal(out.results.length,1);assert.equal(out.trace.unassessed,2);assert.equal(out.results[0].breakdown.length,5);assert.equal(stages.at(-1),100);assert.deepEqual(stages,[...stages].sort((a,b)=>a-b));
 });
 
+test('typed-search Decisions ranking is gated, uses candidate images and falls back cleanly',async()=>{
+ let requestBody;const client={decide:async body=>{requestBody=body;return {answers:body.questions.map(q=>({name:q.name,type:q.type,...(q.type==='predicate'?{probability:.95}:{score:q.name.endsWith('_colour')?2:2.8})})),usage:{input_tokens:1400,output_tokens:0}};}};
+ const d=createDiscovery({env:{SERPAPI_API_KEY:'test',DISCOVERY_DATA_MODE:'live',DECISIONS_RANK:'1',OPENAI_API_KEY:'test'},openAIClient:client,fetcher:async()=>response({shopping_results:results}),pageFetcher:async()=>''});
+ const out=await d.search({attributes:attr,market:'in'});
+ assert.equal(out.trace.decisionsAssessed,6);assert.equal(requestBody.model,'gpt-6-luna');assert.equal(requestBody.questions.length,18);assert.ok(out.results.length>0);assert.ok(out.results.every(x=>x.score>=90));
+ const off=createDiscovery({env:{SERPAPI_API_KEY:'test'},fetcher:async()=>response({shopping_results:results}),pageFetcher:async()=>''});
+ await off.search({attributes:attr,market:'in'});
+});
+
 test('India excludes import aggregators and foreign storefronts',async()=>{
  const {domesticRetailer}=await import('../lib/discovery.mjs');
  for(const url of ['https://www.desertcart.in/products/123','https://www.ubuy.co.in/product/123','https://amazon.com/dp/123','https://www.hm.com/us/item'])assert.equal(domesticRetailer({url,title:'Suit'}),false);

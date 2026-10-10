@@ -34,8 +34,13 @@ return async(req,res)=>{
    try{body=JSON.parse(Buffer.concat(chunks).toString());}catch{return send(400,{error:'Invalid JSON'});}
    if(!body||typeof body!=='object'||Array.isArray(body))return send(400,{error:'Invalid request'});
   }
-  const result=await community.handle(req,pathname,body);
-  res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...result.headers});return res.end(JSON.stringify(result.data));
+  const cookieHeader=String(req.headers.cookie||''),session=cookieHeader.match(/(?:^|;\s*)tbw_session=([^;]+)/)?.[1]||'',account=accounts.readSession(session),existing=cookieHeader.match(/(?:^|;\s*)tbw_community=([a-f0-9]{48})(?:;|$)/)?.[1],token=existing||randomBytes(24).toString('hex'),identity=account||token;
+  // Reuse the same durable identity for Community XP and Discover credits, including across devices after sign-in.
+  if(!existing)req.headers.cookie=[cookieHeader,`tbw_community=${token}`].filter(Boolean).join('; ');
+  const promo=(await credits.summary(identity)).promoCredits;
+  const result=await community.handle(req,pathname,body,identity,promo);
+  const setCookie=!existing?`tbw_community=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${req.socket?.encrypted||req.headers['x-forwarded-proto']==='https'?'; Secure':''}`:'';
+  res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...result.headers,...(setCookie?{'Set-Cookie':setCookie}:{})});return res.end(JSON.stringify(result.data));
  }
  if(req.method==='GET'&&pathname==='/api/mall/updates'){
   const feed=await readFeed();
@@ -119,7 +124,7 @@ return async(req,res)=>{
   }
   return send(405,{error:'Method not allowed'});
  }
- if(req.method==='GET'&&pathname==='/api/discover/credits'){const {models,defaultModel}=discovery.status();return send(200,{...await credits.summary(guest()),models,defaultModel});}
+ if(req.method==='GET'&&pathname==='/api/discover/credits'){const {models,defaultModel}=discovery.status();return send(200,{...await credits.summary(accountId||guest()),models,defaultModel});}
  if(req.method==='GET'&&pathname==='/api/discover/status')return send(200,discovery.status());
  if(req.method==='GET'&&pathname==='/api/developer/observability'){const host=String(req.headers.host||'').replace(/^\[|\](?=:|$)/g,'').split(':')[0];const dashboard=discovery.observability?.();if(!dashboard?.enabled||!['localhost','127.0.0.1','::1'].includes(host))return send(404,{error:'Not found'});return send(200,dashboard);}
  if(req.method==='GET'&&/^\/api\/discover\/image\/[a-f0-9]{48}$/.test(pathname)){const img=discovery.getImage(pathname.split('/').pop());if(!img)return send(404,{error:'Image expired'});res.writeHead(200,{'Content-Type':img.type,'Cache-Control':'no-store','X-Robots-Tag':'noindex, noarchive','X-Content-Type-Options':'nosniff'});return res.end(img.data);}
@@ -142,7 +147,7 @@ return async(req,res)=>{
  const cancelled=new AbortController();res.on('close',()=>{if(!res.writableFinished)cancelled.abort();});
  // Asking costs credits (the model call); the answer carries a ticket good for two shopping searches.
  // Wardrobe imports (detect, orders) stay outside the search allowance and keep the hourly limit.
- let charge=null;const who={guest:guest(),ip:ip(),model:modelKey(body.model)};body.model=who.model;
+ let charge=null;const who={guest:accountId||guest(),ip:ip(),model:modelKey(body.model)};body.model=who.model;
  // The person's own profile sets Discover's default department; a client can't pick someone else's.
  delete body.department;if(action==='interpret'&&accountId){const a=await accounts.get(accountId);body.department=departmentFor(a?.profile);}
  // Every AI call (search and wardrobe imports) stops before the prepaid balance runs out.

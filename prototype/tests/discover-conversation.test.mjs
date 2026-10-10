@@ -57,10 +57,10 @@ test('the in-app model dropdown offers Max and Lite and the choice travels with 
  assert.match(html,/Max · 15 credits/);assert.doesNotMatch(html,/<select/,'no native select sheet on phones');
  h.click('model-menu');await h.settle();html=h.latest();
  assert.match(html,/role="listbox"/);assert.match(html,/<b>Max<\/b><small>Most accurate/);assert.match(html,/<b>Lite<\/b><small>More searches/);
- h.click('pick-model',{id:'gpt-5-nano'});await h.settle();
+ h.click('pick-model',{id:'gpt-5.4-nano'});await h.settle();
  assert.match(h.latest(),/Lite · 8 credits/);assert.doesNotMatch(h.latest(),/role="listbox"/);
  await h.ask('black linen shirt');
- assert.equal(h.calls[0].body.model,'gpt-5-nano');assert.equal(h.calls[1].body.model,'gpt-5-nano');
+ assert.equal(h.calls[0].body.model,'gpt-5.4-nano');assert.equal(h.calls[1].body.model,'gpt-5.4-nano');
  assert.match(h.latest(),/Lite · 8 credits · 112 left/);
 });
 

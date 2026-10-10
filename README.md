@@ -47,7 +47,7 @@ npm test
 - `prototype/lib/` contains server-side discovery, accounts, community, wardrobe, and related service modules.
 - `prototype/tests/` contains Node test-runner coverage for service and HTTP behavior.
 
-Existing screenshot and chat analysis still uses the repository's configured Gemini/OpenRouter/local providers. A guarded, opt-in Decisions API ranker is available for typed searches. Its model requests are server-side, use `gpt-6-luna`, and stay disabled until `DECISIONS_RANK=1`.
+Discover uses OpenAI Responses for garment understanding, screenshot analysis, detection, order extraction, and candidate comparison. It uses GPT-5.4 mini (Max) or GPT-5.4 nano (Lite). Typed results are ranked with OpenAI Decisions (`gpt-6-luna`) when the API key is configured. Calls are server-side and pause at the $45 in-app spend guard. Production requires a durable Postgres URL and a SerpApi key for product retrieval; other model providers remain explicit local benchmarks.
 
 ## Data and setup notes
 

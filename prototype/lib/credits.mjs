@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {ApiError,MODELS,modelKey} from './discovery.mjs';
 
 // Discover search credits. Every guest gets a fixed allowance; each search costs the chosen model's
-// credits (120 = 8 Gemini 3 Flash or 15 GPT-5 nano searches). Two backstops keep a shared preview inside
+// credits (120 = 8 GPT-5.4 mini or 15 GPT-5.4 nano searches). Two backstops keep a shared preview inside
 // budget even if someone clears cookies: a per-IP daily allowance and a daily total across all guests.
 // Credits are charged before the model call and refunded if it fails, so errors never cost the user.
 
@@ -51,12 +51,12 @@ export function createCredits({env=process.env,store,now=Date.now,fetcher=fetch,
  store??=connection?postgresStore(connection):env.VERCEL||process.env.NODE_TEST_CONTEXT?memoryStore():fileStore(file);
  const baseAllowance=Math.max(0,Number(env.DISCOVER_GUEST_CREDITS)||120),promoCredits=env.VERCEL&&!connection?0:50,allowance=baseAllowance+promoCredits;
  const ipDaily=Math.max(baseAllowance,Number(env.DISCOVER_IP_DAILY_CREDITS)||allowance*3);
- // ~40 Gemini 3 Flash searches a day across everyone, sized to a few dollars of prepaid OpenRouter credit.
+ // ~40 searches a day across everyone; OpenAI calls are separately protected by the spend ledger.
  const globalDaily=Math.max(0,Number(env.DISCOVER_DAILY_CREDIT_CAP)||600);
  // Pause all AI before the prepaid balance runs dry, so a demo never ends in raw provider errors.
  const minBalance=Number.isFinite(Number(env.OPENROUTER_MIN_BALANCE_USD))&&env.OPENROUTER_MIN_BALANCE_USD!==''?Number(env.OPENROUTER_MIN_BALANCE_USD):0.5;
  let balanceCache={at:-Infinity,usd:null};
- const secret=env.DISCOVER_TOKEN_SECRET||sha('tbw-turn|'+(env.OPENROUTER_API_KEY||env.GEMINI_API_KEY||'local-dev'));
+ const secret=env.DISCOVER_TOKEN_SECRET||sha('tbw-turn|'+(env.OPENAI_API_KEY||env.OPENROUTER_API_KEY||env.GEMINI_API_KEY||'local-dev'));
  const sign=v=>createHmac('sha256',secret).update(v).digest('hex').slice(0,32);
  const keys=(guest,ip)=>({guest:'guest:'+sha(guest).slice(0,32),ip:'ip:'+sha('ip|'+secret+'|'+ip).slice(0,24)+':'+day(now),global:'global:'+day(now)});
  const costOf=model=>MODELS[modelKey(model)].credits;
@@ -71,7 +71,7 @@ export function createCredits({env=process.env,store,now=Date.now,fetcher=fetch,
  return {
   allowance,summary,balance,
   // Unknown balance (OpenRouter unreachable) does not block: the prepaid account still cannot overspend.
-  async budgetOk(){if(env.VISION_PROVIDER&&env.VISION_PROVIDER!=='openrouter')return;const usd=await balance();if(usd!==null&&usd<minBalance)throw Object.assign(new ApiError(503,'Discover’s AI search is paused for now. Please try again later.'),{reason:'balance'});},
+  async budgetOk(){if(!env.OPENROUTER_API_KEY||(env.VISION_PROVIDER&&env.VISION_PROVIDER!=='openrouter')||(env.VERCEL&&env.OPENAI_API_KEY))return;const usd=await balance();if(usd!==null&&usd<minBalance)throw Object.assign(new ApiError(503,'Discover’s AI search is paused for now. Please try again later.'),{reason:'balance'});},
   // Charges guest, IP and global counters together, undoing earlier steps if a later ceiling is hit.
   async charge({guest,ip,model}){
    const cost=costOf(model),k=keys(guest,ip);

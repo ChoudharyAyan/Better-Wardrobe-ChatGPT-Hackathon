@@ -30,11 +30,14 @@ test('metadata falls back to OpenGraph tags when JSON-LD is missing or incomplet
  assert.equal(productMetadata(schemaMissingPrice).price,1299);
 });
 test('missing credentials are explicit and no provider calls occur',async()=>{
- const d=createDiscovery({env:{},fetcher:()=>assert.fail('No network without keys')});assert.deepEqual(d.status(),{vision:false,visionProvider:'gemini',models:[{id:'gemini-3-flash',label:'Max',note:'Most accurate',credits:15},{id:'gpt-5-nano',label:'Lite',note:'More searches',credits:8}],defaultModel:'gemini-3-flash',shopping:false,lens:false,model:'gemini-3-flash-preview',developerDashboard:false,dataMode:'live'});await assert.rejects(d.analyze({image,category:'Shirt'}),/Gemini/);await assert.rejects(d.search({attributes:attr}),/SerpApi/);
+ const d=createDiscovery({env:{},fetcher:()=>assert.fail('No network without keys')});assert.deepEqual(d.status(),{vision:false,visionProvider:'openai',openaiReady:false,spendLedgerReady:false,decisionRanking:false,models:[{id:'gpt-5.4-mini',label:'Max',note:'Most accurate',credits:15},{id:'gpt-5.4-nano',label:'Lite',note:'More searches',credits:8}],defaultModel:'gpt-5.4-mini',shopping:false,lens:false,model:'GPT-5.4 mini',developerDashboard:false,dataMode:'live'});await assert.rejects(d.analyze({image,category:'Shirt'}),/OpenAI/);await assert.rejects(d.search({attributes:attr}),/SerpApi/);
+});
+test('Vercel prefers OpenAI when its project key is configured and reports missing run dependencies safely',()=>{
+ const d=createDiscovery({env:{VERCEL:'1',OPENAI_API_KEY:'test-secret',VISION_PROVIDER:'openrouter',OPENROUTER_API_KEY:'old-secret'}});const status=d.status();assert.equal(status.visionProvider,'openai');assert.equal(status.openaiReady,true);assert.equal(status.spendLedgerReady,false);assert.equal(status.decisionRanking,true);assert.equal(status.shopping,false);assert.ok(!JSON.stringify(status).includes('test-secret'));
 });
 test('conversation interpretation accepts text, screenshot, or both without inventing product facts',async()=>{
  const calls=[];const answer={...attr,category:'Blazer',colour:'brown',subtype:'blazer',features:'single button',department:'womenswear',query:'relaxed brown blazer',budget:4000,uncertainty:'Fabric is unclear',question:''};
- const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async(url,opts)=>{calls.push(JSON.parse(opts.body));return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(answer)}]}}]});}});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async(url,opts)=>{calls.push(JSON.parse(opts.body));return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(answer)}]}}]});}});
  const textOnly=await d.interpret({text:'Find a brown blazer under ₹4,000'});assert.equal(textOnly.attributes.category,'Blazer');assert.equal(textOnly.budget,4000);assert.equal(textOnly.query,'relaxed brown blazer');assert.equal(calls[0].contents[0].parts.some(p=>p.inlineData),false);
  await d.interpret({text:'Something like this',image});assert.equal(calls[1].contents[0].parts.some(p=>p.inlineData),true);
  await d.interpret({image});assert.equal(calls[2].contents[0].parts.some(p=>p.inlineData),true);
@@ -42,7 +45,7 @@ test('conversation interpretation accepts text, screenshot, or both without inve
  await assert.rejects(d.interpret({}),/description or a screenshot/);
 });
 test('conversation asks for a garment type when the request is ambiguous',async()=>{
- const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async()=>response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({category:'',colour:'',fit:'',pattern:'',details:'',subtype:'',features:'',department:'unknown',query:'Cannes 2008',budget:null,uncertainty:'',question:'Which item do you mean?'})}]}}]})});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async()=>response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({category:'',colour:'',fit:'',pattern:'',details:'',subtype:'',features:'',department:'unknown',query:'Cannes 2008',budget:null,uncertainty:'',question:'Which item do you mean?'})}]}}]})});
  const out=await d.interpret({text:'Cannes 2008'});assert.equal(out.attributes,null);assert.equal(out.question,'Which item do you mean?');
 });
 test('a confirmed conversational phrase reaches shopping search',async()=>{
@@ -57,7 +60,7 @@ test('manual India search retains unknown availability and excludes above-budget
 test('full retrieval combines routes, expires crop, and derives scores from supplied evidence',async()=>{
  let uploadId;let d;
  const fetcher=async(url,opts)=>{if(String(url).includes('generativelanguage.googleapis.com')){const body=JSON.parse(opts.body);assert.equal(body.store,false);const ids=body.contents[0].parts.filter(c=>c.text?.startsWith('{')).map(c=>JSON.parse(c.text).id);return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({matches:ids.map(id=>({id,categoryMatch:true,essentialMismatch:false,visual:1,fit:1,colour:1,pattern:1,details:0.5,reason:'Similar colour and silhouette; collar differs.'}))})}]}}]});}const u=new URL(url);if(u.searchParams.get('engine')==='google_lens'){uploadId=new URL(u.searchParams.get('url')).pathname.split('/').pop();assert.ok(d.getImage(uploadId));return response({visual_matches:[{...results[0],link:'https://global.example.com/shirt'}]});}return response({shopping_results:results});};
- d=createDiscovery({env:{GEMINI_API_KEY:'test',SERPAPI_API_KEY:'test',PUBLIC_BASE_URL:'https://preview.example.com'},fetcher,imageFetcher:async()=>({data:image.split(',')[1],mimeType:'image/png'}),pageFetcher:async()=>schemaPage()});
+ d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test',SERPAPI_API_KEY:'test',PUBLIC_BASE_URL:'https://preview.example.com'},fetcher,imageFetcher:async()=>({data:image.split(',')[1],mimeType:'image/png'}),pageFetcher:async()=>schemaPage()});
  const data=await d.search({attributes:attr,image,market:'us'});assert.equal(d.getImage(uploadId),undefined);assert.equal(data.results[0].score,95);assert.equal(data.results[0].match,'Very close vibe');assert.ok(data.results.some(p=>p.market==='global'));assert.ok(data.results[0].availability.includes('confirm delivery'));assert.ok(!JSON.stringify(data).includes('test'));
 });
 test('provider failures yield partial results, never substitute sample products',async()=>{
@@ -70,20 +73,25 @@ test('hourly cap bounds public preview operations',async()=>{
  const d=createDiscovery({env:{SERPAPI_API_KEY:'test',DISCOVERY_HOURLY_LIMIT:'1'},fetcher:async()=>response({shopping_results:results}),pageFetcher:async()=>''});await d.search({attributes:attr});await assert.rejects(d.search({attributes:attr}),/hourly/);
 });
 test('detect locates multiple items and converts normalized boxes to crop percentages',async()=>{
- const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async()=>response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({items:[{label:'Dress',box:[100,50,600,900]},{label:'Bracelet',box:[650,700,900,780]},{label:'bad',box:[1,1]}]})}]}}]})});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async()=>response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({items:[{label:'Dress',box:[100,50,600,900]},{label:'Bracelet',box:[650,700,900,780]},{label:'bad',box:[1,1]}]})}]}}]})});
  const out=await d.detect({image});
  assert.equal(out.items.length,2);assert.equal(out.items[0].label,'Dress');
  assert.equal(out.items[0].crop.left,10);assert.equal(out.items[0].crop.top,5);assert.equal(out.items[0].crop.width,50);assert.equal(out.items[0].crop.height,85);
 });
 test('detect declines items with empty labels or degenerate boxes',async()=>{
- const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async()=>response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({items:[{label:'',box:[0,0,100,100]},{label:'Tiny',box:[0,0,10,10]},{label:'Flipped',box:[500,500,100,100]}]})}]}}]})});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async()=>response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({items:[{label:'',box:[0,0,100,100]},{label:'Tiny',box:[0,0,10,10]},{label:'Flipped',box:[500,500,100,100]}]})}]}}]})});
  assert.equal((await d.detect({image})).items.length,0);
 });
 test('Gemini analysis uses inline images, structured output and header-only credentials',async()=>{
  let sent;
- const d=createDiscovery({env:{GEMINI_API_KEY:'secret-test'},fetcher:async(url,opts)=>{sent={url,opts,body:JSON.parse(opts.body)};return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({...attr,uncertainty:'Fabric unknown'})}]}}]});}});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'secret-test'},fetcher:async(url,opts)=>{sent={url,opts,body:JSON.parse(opts.body)};return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({...attr,uncertainty:'Fabric unknown'})}]}}]});}});
  assert.equal((await d.analyze({image,category:'Shirt'})).colour,'pastel blue');
  assert.ok(sent.url.includes('generativelanguage.googleapis.com'));assert.ok(!sent.url.includes('secret-test'));assert.equal(sent.opts.headers['x-goog-api-key'],'secret-test');assert.ok(sent.body.contents[0].parts.some(p=>p.inlineData));assert.equal(sent.body.generationConfig.responseMimeType,'application/json');
+});
+
+test('OpenAI Responses powers vision and extraction with server-only key, schema and spend usage',async()=>{
+ let sent;const d=createDiscovery({env:{OPENAI_API_KEY:'test-only',VISION_PROVIDER:'openai'},fetcher:async(url,opts)=>{sent={url:String(url),opts,body:JSON.parse(opts.body)};return response({output_text:JSON.stringify({category:'Shirt',colour:'blue',fit:'relaxed',pattern:'solid',details:'long sleeves',subtype:'',features:'',department:'unknown',uncertainty:'',reference:'',query:'blue relaxed shirt',budget:null,question:''}),usage:{input_tokens:1000,output_tokens:50}});}});
+ const result=await d.interpret({text:'blue shirt',image});assert.equal(result.attributes.category,'Shirt');assert.equal(sent.url,'https://api.openai.com/v1/responses');assert.equal(sent.opts.headers.Authorization,'Bearer test-only');assert.equal(sent.body.model,'gpt-5.4-mini');assert.equal(sent.body.text.format.type,'json_schema');assert.ok(sent.body.input[1].content.some(p=>p.type==='input_image'&&p.image_url.startsWith('data:image/')));assert.ok(!JSON.stringify(sent.body).includes('test-only'));
 });
 test('local Ollama analysis sends images locally and parses structured thinking output',async()=>{
  let sent;const d=createDiscovery({env:{VISION_PROVIDER:'ollama',OLLAMA_MODEL:'qwen3-vl:2b'},fetcher:async(url,opts)=>{sent={url:String(url),body:JSON.parse(opts.body)};return response({message:{content:'',thinking:JSON.stringify({...attr,subtype:'shirt',uncertainty:''})}});}});
@@ -94,11 +102,11 @@ test('developer observability records sanitized local provider telemetry',async(
  await d.analyze({image,category:'Shirt'});const dashboard=d.observability();assert.equal(dashboard.enabled,true);assert.equal(dashboard.totals.requests,1);assert.equal(dashboard.providers[0].provider,'Ollama');assert.equal(dashboard.providers[0].averageMs,27);assert.equal(dashboard.recentRequests[0].operation,'garment');assert.ok(!JSON.stringify(dashboard).includes(image));
 });
 test('Gemini quota exhaustion stops after one call without fallback',async()=>{
- let count=0;const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async()=>{count++;return {ok:false,status:429};}});
+ let count=0;const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async()=>{count++;return {ok:false,status:429};}});
  await assert.rejects(d.analyze({image,category:'Shirt'}),/no paid fallback/);assert.equal(count,1);
 });
 test('a transient provider 503 is retried once without losing the request',async()=>{
- let count=0;const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async()=>{count++;return count===1?{ok:false,status:503}:response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({...attr,uncertainty:''})}]}}]});}});
+ let count=0;const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async()=>{count++;return count===1?{ok:false,status:503}:response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({...attr,uncertainty:''})}]}}]});}});
  const out=await d.analyze({image,category:'Shirt'});assert.equal(count,2);assert.equal(out.colour,'pastel blue');
 });
 test('empty detailed shopping query broadens even when Lens has many results',async()=>{
@@ -116,7 +124,7 @@ test('features field extends essential-feature detection beyond the built-in reg
  assert.ok(intent.essential.includes('chest pocket'));assert.ok(intent.essential.includes('cropped length'));assert.ok(intent.query.includes('chest pocket'));
 });
 test('wrong type, conflicting details and weak matches are excluded; no unscored padding',async()=>{
- const d=createDiscovery({env:{GEMINI_API_KEY:'test',SERPAPI_API_KEY:'test'},imageFetcher:async()=>({data:image.split(',')[1],mimeType:'image/png'}),pageFetcher:async()=>'',fetcher:async(url,opts)=>{if(!String(url).includes('googleapis'))return response({shopping_results:results});const ids=JSON.parse(opts.body).contents[0].parts.filter(p=>p.text?.startsWith('{')).map(p=>JSON.parse(p.text).id);return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({matches:ids.slice(0,4).map((id,i)=>({id,categoryMatch:i!==0,essentialMismatch:i===1,visual:i===2?0.3:0.9,fit:0.9,colour:0.9,pattern:1,details:1,reason:'Fixture assessment'}))})}]}}]});}});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test',SERPAPI_API_KEY:'test'},imageFetcher:async()=>({data:image.split(',')[1],mimeType:'image/png'}),pageFetcher:async()=>'',fetcher:async(url,opts)=>{if(!String(url).includes('googleapis'))return response({shopping_results:results});const ids=JSON.parse(opts.body).contents[0].parts.filter(p=>p.text?.startsWith('{')).map(p=>JSON.parse(p.text).id);return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({matches:ids.slice(0,4).map((id,i)=>({id,categoryMatch:i!==0,essentialMismatch:i===1,visual:i===2?0.3:0.9,fit:0.9,colour:0.9,pattern:1,details:1,reason:'Fixture assessment'}))})}]}}]});}});
  const stages=[];const out=await d.search({attributes:attr,image,market:'us'},p=>stages.push(p.percent));assert.equal(out.results.length,1);assert.equal(out.trace.unassessed,2);assert.equal(out.results[0].breakdown.length,5);assert.equal(stages.at(-1),100);assert.deepEqual(stages,[...stages].sort((a,b)=>a-b));
 });
 
@@ -139,7 +147,7 @@ test('India excludes import aggregators and foreign storefronts',async()=>{
 test('India search retains and ranks a stronger global fallback',async()=>{
  const domestic={title:'Pastel blue relaxed shirt India',link:'https://www.myntra.com/shirt/india',thumbnail:'https://images.example.com/india.jpg',source:'Myntra'};
  const worldwide={title:'Pastel blue relaxed shirt Global',link:'https://global.example.com/shirt',thumbnail:'https://images.example.com/global.jpg',source:'Global Shop'};
- const d=createDiscovery({env:{GEMINI_API_KEY:'test',SERPAPI_API_KEY:'test'},imageFetcher:async()=>({data:image.split(',')[1],mimeType:'image/png'}),pageFetcher:async url=>url.includes('myntra.com')?schemaPage():'',fetcher:async(url,opts)=>{
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test',SERPAPI_API_KEY:'test'},imageFetcher:async()=>({data:image.split(',')[1],mimeType:'image/png'}),pageFetcher:async url=>url.includes('myntra.com')?schemaPage():'',fetcher:async(url,opts)=>{
   if(!String(url).includes('googleapis')){const q=new URL(url).searchParams.get('q')||'';return response({images_results:[q.includes('site:')?domestic:worldwide]});}
   const pieces=JSON.parse(opts.body).contents[0].parts.filter(p=>p.text?.startsWith('{')).map(p=>JSON.parse(p.text));
   return response({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({matches:pieces.map(p=>({id:p.id,categoryMatch:true,essentialMismatch:false,visual:p.title.includes('Global')?1:.8,fit:.9,colour:1,pattern:1,details:.9,reason:'Fixture comparison'}))})}]}}]});
@@ -204,7 +212,7 @@ test('department keeps a menswear search out of womenswear listings',()=>{
 
 test('interpret asks instead of inventing a garment, and keeps budgets across follow-ups',async()=>{
  const reply=(data)=>({ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({category:'',colour:'',fit:'',pattern:'',details:'',subtype:'',features:'',department:'unknown',query:'',budget:null,uncertainty:'',question:'',...data})}]}}]})});
- let next;const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async()=>reply(next)});
+ let next;const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async()=>reply(next)});
  next={category:'sweatshirts',subtype:'pullover',colour:'beige',query:'beige sweatshirt'};
  const vague=await d.interpret({text:'something nice'});
  assert.equal(vague.attributes,null,'no garment was named, so none is invented');assert.ok(vague.question);
@@ -222,7 +230,7 @@ test('interpret asks instead of inventing a garment, and keeps budgets across fo
 
 test('OpenRouter runs both models with strict JSON, falls back to JSON mode, and reports an empty balance',async()=>{
  const sent=[];let mode='ok';
- const d=createDiscovery({env:{OPENROUTER_API_KEY:'or-test'},fetcher:async(url,opts)=>{
+ const d=createDiscovery({env:{VISION_PROVIDER:'openrouter',OPENROUTER_API_KEY:'or-test'},fetcher:async(url,opts)=>{
   const body=JSON.parse(opts.body);sent.push({url:String(url),auth:opts.headers.Authorization,body});
   if(mode==='broke')return {ok:false,status:402,json:async()=>({})};
   if(mode==='strict-rejected'&&body.response_format.type==='json_schema')return {ok:false,status:400,json:async()=>({error:{message:'schema not supported'}})};
@@ -231,11 +239,11 @@ test('OpenRouter runs both models with strict JSON, falls back to JSON mode, and
  assert.equal(d.status().visionProvider,'openrouter');assert.equal(d.status().vision,true);
  await d.interpret({text:'black linen shirt'});
  assert.equal(sent[0].url,'https://openrouter.ai/api/v1/chat/completions');assert.equal(sent[0].auth,'Bearer or-test');
- assert.equal(sent[0].body.model,'google/gemini-3-flash-preview','Gemini 3 Flash is the default');assert.equal(sent[0].body.response_format.type,'json_schema');
+ assert.equal(sent[0].body.model,'openai/gpt-5.4-mini','OpenAI Max is the default');assert.equal(sent[0].body.response_format.type,'json_schema');
  assert.match(sent[0].body.messages[0].content,/never write a person's name/);
- await d.interpret({text:'black linen shirt',model:'gpt-5-nano'});
- assert.equal(sent[1].body.model,'openai/gpt-5-nano');assert.deepEqual(sent[1].body.reasoning,{effort:'low'});
- await d.interpret({text:'black linen shirt',model:'claude-opus-everything'});assert.equal(sent[2].body.model,'google/gemini-3-flash-preview','unknown models fall back to the default');
+ await d.interpret({text:'black linen shirt',model:'gpt-5.4-nano'});
+ assert.equal(sent[1].body.model,'openai/gpt-5.4-nano');assert.deepEqual(sent[1].body.reasoning,{effort:'low'});
+ await d.interpret({text:'black linen shirt',model:'claude-opus-everything'});assert.equal(sent[2].body.model,'openai/gpt-5.4-mini','unknown models fall back to the default');
  mode='strict-rejected';const r=await d.interpret({text:'black linen shirt'});assert.equal(r.attributes.category,'shirt');assert.equal(sent.at(-1).body.response_format.type,'json_object');
  mode='broke';await assert.rejects(d.interpret({text:'black linen shirt'}),/balance for this preview is used up/);
 });
@@ -281,7 +289,7 @@ test('colour gate: a white-shirt search drops blue and pink shirts by title or p
 });
 test('a piece picked from the photo is searched even when the model says it cannot see it',async()=>{
  const reply={category:'',colour:'',fit:'',pattern:'',details:'',subtype:'',features:'',department:'unknown',query:'',budget:null,uncertainty:'',question:"I couldn't find any sunglasses in the image."};
- const d=createDiscovery({env:{OPENROUTER_API_KEY:'k',VISION_PROVIDER:'openrouter'},fetcher:async()=>({ok:true,status:200,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(reply)}}]})})});
+ const d=createDiscovery({env:{VISION_PROVIDER:'openrouter',OPENROUTER_API_KEY:'k',VISION_PROVIDER:'openrouter'},fetcher:async()=>({ok:true,status:200,json:async()=>({choices:[{finish_reason:'stop',message:{content:JSON.stringify(reply)}}]})})});
  const r=await d.interpret({text:'',image:image,target:'sunglasses'});
  assert.equal(r.attributes.category,'sunglasses');assert.equal(r.question,'');
 });

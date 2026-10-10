@@ -18,10 +18,12 @@ test('OpenAI Decisions calls stay server-side, use the fixed model and meter rep
  assert.equal(sent.model,'gpt-6-luna');assert.equal(out.answers[0].score,2.5);assert.equal((await spend.summary()).requests,1);
 });
 
-test('the Vercel spend guard fails closed without a durable database',async()=>{
+test('the Vercel spend guard permits calls without a database and reports instance-local scope',async()=>{
  const guard=createSpend({env:{VERCEL:'1'}});let called=false;
- await assert.rejects(guard.run({endpoint:'decisions'},async()=>{called=true;}),e=>e.status===503&&/durable hackathon database/.test(e.message));
- assert.equal(called,false);
+ assert.equal(guard.guardMode,'instance-memory');
+ await guard.run({endpoint:'decisions'},async()=>{called=true;return {usage:{input_tokens:100,output_tokens:0}};});
+ assert.equal(called,true);
+ assert.equal((await guard.summary()).requests,1);
 });
 
 test('failed model calls release their reservation and never retain request content',async()=>{

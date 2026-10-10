@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-10-05T09:37:58.532Z",
+  "generatedAt": "2026-10-10T07:26:49.048Z",
   "brands": {
     "1": {
-      "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "status": "error",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Robots policy unavailable"
     },
     "2": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -24,7 +24,7 @@
     },
     "3": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -36,54 +36,57 @@
       "error": null
     },
     "4": {
-      "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "status": "error",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Robots policy unavailable"
     },
     "5": {
-      "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "status": "error",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Robots policy unavailable"
     },
     "6": {
-      "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "status": "error",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Robots policy unavailable"
     },
     "7": {
-      "status": "error",
-      "checkedAt": "2026-10-05T09:15:32.510Z",
-      "designs": [],
-      "offers": [],
-      "sources": {
-        "offers": {
-          "url": "https://www.lifestylestores.com/in/en/c/women?q=%3AbadgeVisibleTitle_uFilter%3ANew&discount=0,10",
-          "label": ""
-        }
-      },
-      "error": "Crawling disallowed or robots unavailable",
-      "lastAttemptAt": "2026-10-05T09:24:44.812Z"
-    },
-    "8": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
       "error": null
     },
+    "8": {
+      "status": "empty",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
+      "designs": [],
+      "offers": [],
+      "sources": {
+        "designs": {
+          "url": "https://www.shoppersstop.com/s/latest-fossil-watches-for-ladies",
+          "label": "latest fossil watches for ladies"
+        },
+        "offers": {
+          "url": "https://www.shoppersstop.com/brand/four-star-truck-sales",
+          "label": "four star truck sales"
+        }
+      },
+      "error": null
+    },
     "9": {
       "status": "error",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -99,7 +102,7 @@
       "error": "Source HTTP 404"
     },
     "10": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -113,11 +116,12 @@
           "label": "View All"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "11": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:37:58.532Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -134,14 +138,14 @@
     },
     "12": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
       "error": null
     },
     "13": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -204,12 +208,25 @@
           "label": "sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "14": {
       "status": "ok",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [
+        {
+          "id": "719d5945dcdf36e9",
+          "title": "Anti Magic T-Shirt",
+          "url": "https://www.comicsense.store/product/black-clover-unisex-oversize-anti-magic-t-shirt/",
+          "image": "https://www.comicsense.store/wp-content/uploads/2026/10/black_clover_tee_listing_tag_comicsense.webp",
+          "price": 1399,
+          "originalPrice": 1699,
+          "currency": "INR",
+          "firstSeenAt": "2026-10-10T07:26:49.048Z",
+          "sourceUrl": "https://www.comicsense.store/shop/?orderby=date",
+          "isNew": true
+        },
         {
           "id": "ffa1af9a41c62b10",
           "title": "Japan U-20 Shidou Jersey",
@@ -227,7 +244,7 @@
           "title": "Bastard Munchen-11 Jersey (Boxy Fit)",
           "url": "https://www.comicsense.store/product/bluelock-unisex-bastard-munchen-11-jersey-boxy-fit/",
           "image": "https://www.comicsense.store/wp-content/uploads/2026/09/bastard-11.jpg_comicsense.webp",
-          "price": 999,
+          "price": 949,
           "originalPrice": 1299,
           "currency": "INR",
           "firstSeenAt": "2026-10-05T09:09:44.090Z",
@@ -239,18 +256,6 @@
           "title": "Blue Lock-10 Jersey (Boxy Fit)",
           "url": "https://www.comicsense.store/product/blue-lock-10-jersey-boxy-fit/",
           "image": "https://www.comicsense.store/wp-content/uploads/2026/09/bluelock-10-front.jpg-1_comicsense.webp",
-          "price": 999,
-          "originalPrice": 1299,
-          "currency": "INR",
-          "firstSeenAt": "2026-10-05T09:09:44.090Z",
-          "sourceUrl": "https://www.comicsense.store/shop/?orderby=date",
-          "isNew": false
-        },
-        {
-          "id": "ce0c86a6faa29ddf",
-          "title": "Fukurodani-4 Jersey (Boxy Fit)",
-          "url": "https://www.comicsense.store/product/haikyuu-unisex-fukurodani-4-jersey-boxy-fit/",
-          "image": "https://www.comicsense.store/wp-content/uploads/2026/09/Fukurodani-4-Boxy-jersey-listing-1-tag_comicsense.webp",
           "price": 949,
           "originalPrice": 1299,
           "currency": "INR",
@@ -271,7 +276,7 @@
           "firstSeenAt": "2026-10-05T09:09:44.090Z",
           "sourceUrl": "https://www.comicsense.store/shop/?orderby=sale_per_view_with_date",
           "discountPercent": 18,
-          "observedAt": "2026-10-05T09:24:44.812Z"
+          "observedAt": "2026-10-10T07:26:49.048Z"
         },
         {
           "id": "8cc636c201aa3fc0",
@@ -284,7 +289,7 @@
           "firstSeenAt": "2026-10-05T09:09:44.090Z",
           "sourceUrl": "https://www.comicsense.store/shop/?orderby=sale_per_view_with_date",
           "discountPercent": 27,
-          "observedAt": "2026-10-05T09:24:44.812Z"
+          "observedAt": "2026-10-10T07:26:49.048Z"
         }
       ],
       "sources": {
@@ -300,7 +305,7 @@
       "error": null
     },
     "15": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -327,11 +332,12 @@
           "label": ""
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "16": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
@@ -339,22 +345,22 @@
     },
     "17": {
       "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Crawling disallowed"
     },
     "18": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
       "error": null
     },
     "19": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -417,18 +423,20 @@
           "label": "Sale Nezuko | Demon Slayer Women's Oversized T-shirt Rs. 1,649.00 Rs. 999.00"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "20": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "21": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -442,10 +450,11 @@
           "label": "offers offers"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "22": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -508,10 +517,11 @@
           "label": "Offers and Deals"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "23": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -570,10 +580,11 @@
           "label": "New in"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "24": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -583,10 +594,11 @@
           "label": "SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "25": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -649,10 +661,11 @@
           "label": "End of Season Sale Policy"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "26": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -666,10 +679,11 @@
           "label": "Manufacture"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "27": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -679,10 +693,11 @@
           "label": "SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "28": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -745,10 +760,11 @@
           "label": "SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "29": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -795,10 +811,11 @@
           "label": "NEW IN"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "30": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -808,10 +825,11 @@
           "label": "Archive"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "31": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -862,18 +880,20 @@
           "label": "Warehouse Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "32": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "33": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -936,10 +956,11 @@
           "label": "Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "34": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1002,18 +1023,20 @@
           "label": "on sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "35": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "36": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1027,10 +1050,11 @@
           "label": "Clearance Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "37": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1093,10 +1117,11 @@
           "label": "late friday sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "38": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1159,18 +1184,19 @@
           "label": "CLEARANCE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "39": {
       "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Crawling disallowed"
     },
     "40": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1184,18 +1210,19 @@
           "label": "SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "41": {
-      "status": "blocked",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "status": "error",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Robots policy unavailable"
     },
     "42": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1209,11 +1236,12 @@
           "label": "Mirai Sale - Early Access Ends in: Shop Now"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "43": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1225,7 +1253,7 @@
       "error": null
     },
     "44": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1328,11 +1356,12 @@
           "label": "SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "45": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1348,7 +1377,7 @@
       "error": null
     },
     "46": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1399,11 +1428,12 @@
           "label": "Shop Formals"
         }
       },
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "47": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1420,7 +1450,7 @@
     },
     "48": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1437,7 +1467,7 @@
     },
     "49": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1454,7 +1484,7 @@
     },
     "50": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1470,7 +1500,7 @@
       "error": null
     },
     "51": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1480,10 +1510,11 @@
           "label": "mid season sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "52": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1546,11 +1577,12 @@
           "label": "Sale Up to 60% off"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "53": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1567,7 +1599,7 @@
     },
     "54": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
@@ -1575,7 +1607,7 @@
     },
     "55": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1584,15 +1616,15 @@
           "label": "celeb bestsellers new arrivals"
         },
         "offers": {
-          "url": "https://www.fablestreet.com/collections/sale-has-ended",
-          "label": "sale has ended"
+          "url": "https://www.fablestreet.com/collections/best-deals",
+          "label": ""
         }
       },
       "error": null
     },
     "56": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1608,7 +1640,7 @@
       "error": null
     },
     "57": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1659,10 +1691,11 @@
           "label": "SPECIAL PRICES"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "58": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1713,10 +1746,11 @@
           "label": "Sales"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "59": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1730,10 +1764,11 @@
           "label": "Final Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "60": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1796,10 +1831,11 @@
           "label": "NEW ON SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "61": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1838,10 +1874,11 @@
           "label": "surprise sale flat 20 off"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "62": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1855,10 +1892,11 @@
           "label": "dresses sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "63": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -1885,18 +1923,19 @@
           "label": "SALE"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "64": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
       "error": null
     },
     "65": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -1910,11 +1949,12 @@
           "label": "employee discount"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "66": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -1930,7 +1970,7 @@
       "error": null
     },
     "67": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2046,11 +2086,12 @@
           "label": "Libas Fashion Festival 50-70% OFF"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "68": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2062,7 +2103,7 @@
       "error": null
     },
     "69": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -2076,11 +2117,12 @@
           "label": "Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "70": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2096,7 +2138,7 @@
       "error": null
     },
     "71": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2147,10 +2189,11 @@
           "label": "🔥 DIL WALI SALE IS LIVE 🔥 ✨ UPTO 60% OFF SITEWIDE 🛍️ 🎁 SHOP ABOVE 30K — GET ADDITIONAL 10% OFF 💸 SHOP ABOVE 20K — GET ADDITIONAL 5% OFF"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "72": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2177,11 +2220,12 @@
           "label": "Sale All"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "73": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2197,7 +2241,7 @@
       "error": null
     },
     "74": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -2211,10 +2255,11 @@
           "label": "TYOHAR Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "75": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2277,10 +2322,11 @@
           "label": ""
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "76": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2339,10 +2385,11 @@
           "label": "New Arrivals"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "77": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -2352,11 +2399,12 @@
           "label": "New Arrivals"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "78": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2369,19 +2417,19 @@
     },
     "79": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
         "designs": {
           "url": "https://www.tasva.com/c/new-arrivals-in-ethnic-wear-for-men",
-          "label": "New Arrival"
+          "label": ""
         }
       },
       "error": null
     },
     "80": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2444,10 +2492,11 @@
           "label": "sale 1"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "81": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -2457,18 +2506,19 @@
           "label": "retail sales advisor 1"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "82": {
       "status": "error",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
       "error": "Source HTTP 403"
     },
     "83": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2531,18 +2581,19 @@
           "label": "Happiness Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "84": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {},
       "error": null
     },
     "85": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2601,10 +2652,11 @@
           "label": "New Arrivals"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "86": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -2614,10 +2666,11 @@
           "label": "march and move sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "87": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2683,23 +2736,24 @@
           "label": "Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "88": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
         "offers": {
-          "url": "https://www.technosport.in/sale/performance-wear",
+          "url": "https://www.technosport.in/sale/gear-up",
           "label": ""
         }
       },
       "error": null
     },
     "89": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2779,10 +2833,11 @@
           "label": "SHOP"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "90": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2845,10 +2900,11 @@
           "label": "stock clearance sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "91": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -2899,11 +2955,12 @@
           "label": "crocs pollex clog by salehe bembury"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "92": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2920,7 +2977,7 @@
     },
     "93": {
       "status": "error",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2933,10 +2990,10 @@
           "label": ""
         }
       },
-      "error": "Crawling disallowed or robots unavailable"
+      "error": "Crawling disallowed"
     },
     "94": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -2950,11 +3007,12 @@
           "label": "Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 403",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "95": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
       "sources": {
@@ -2970,7 +3028,7 @@
       "error": null
     },
     "96": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -3033,10 +3091,11 @@
           "label": "Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "97": {
-      "status": "ok",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [
         {
@@ -3099,18 +3158,20 @@
           "label": "Reset Sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "98": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
       "sources": {},
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "99": {
-      "status": "empty",
+      "status": "error",
       "checkedAt": "2026-10-05T09:24:44.812Z",
       "designs": [],
       "offers": [],
@@ -3120,14 +3181,20 @@
           "label": "sale"
         }
       },
-      "error": null
+      "error": "Source HTTP 429",
+      "lastAttemptAt": "2026-10-10T07:26:49.048Z"
     },
     "100": {
       "status": "empty",
-      "checkedAt": "2026-10-05T09:24:44.812Z",
+      "checkedAt": "2026-10-10T07:26:49.048Z",
       "designs": [],
       "offers": [],
-      "sources": {},
+      "sources": {
+        "offers": {
+          "url": "https://www.kaltculture.in/product-page/wine-double-jersey-oversize-t-shirt",
+          "label": "WINE DOUBLE JERSEY OVERSIZE T-SHIRTRegular Price₹1,200.00Sale Price₹799.00"
+        }
+      },
       "error": null
     }
   }

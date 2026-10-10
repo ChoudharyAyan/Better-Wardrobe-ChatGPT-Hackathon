@@ -48,6 +48,10 @@
     const date = value ? new Date(value) : null;
     return date && !Number.isNaN(date.getTime()) ? `Checked ${new Intl.DateTimeFormat('en-IN', {day: 'numeric', month: 'short'}).format(date)}` : 'Not checked yet';
   };
+  const refreshLabel = () => {
+    const date = updateFeed.generatedAt ? new Date(updateFeed.generatedAt) : null;
+    return date && !Number.isNaN(date.getTime()) ? `Refresh run ${new Intl.DateTimeFormat('en-IN', {day: 'numeric', month: 'long', year: 'numeric'}).format(date)}.` : '';
+  };
   const priceLabel = (value) => {
     const amount = typeof value === 'number' ? value : Number(String(value ?? '').replace(/[^\d.]/g, ''));
     return Number.isFinite(amount) && amount > 0 ? `₹${new Intl.NumberFormat('en-IN', {maximumFractionDigits: 0}).format(amount)}` : '';
@@ -171,7 +175,7 @@
     <div class="mall-progress"><div><span class="mall-stamp">✳</span><strong>${progress.districts.size} of ${categories.length} districts explored</strong></div><span>${progress.stores.size} store ${progress.stores.size === 1 ? 'sign' : 'signs'} found</span></div>
     ${stage === 'map' ? map() : stage === 'lanes' ? laneScene() : stores()}
     ${directory()}
-    <p class="mall-note">Store updates come from public store pages and may be incomplete. Logos identify their respective stores; no partnership or endorsement is implied.</p>
+    <p class="mall-note">${refreshLabel()} Per-store check dates are shown above. Store updates come from public store pages and may be incomplete. Logos identify their respective stores; no partnership or endorsement is implied.</p>
   </section>`;
   };
   const update = () => { const root = document.querySelector('#discover-mall'); if (root) root.outerHTML = render(); };

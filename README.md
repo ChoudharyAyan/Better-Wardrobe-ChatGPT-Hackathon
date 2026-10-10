@@ -1,24 +1,25 @@
-# Better Wardrobe — ChatGPT Hackathon
+# Better Wardrobe — Hackathon Clone
 
 **A fashion discovery and wardrobe prototype for finding a look, exploring similar pieces, and keeping personal style in one place.**
 
-[Live project tour](https://wardrobeos-hackathon.ayan-ayan-choudhary.chatgpt.site) · [Source repository](https://github.com/ChoudharyAyan/Better-Wardrobe-ChatGPT-Hackathon)
+[Production reference](https://app.thewardrobeos.com) · [Source repository](https://github.com/ChoudharyAyan/Better-Wardrobe-ChatGPT-Hackathon)
 
-> This is an evolving hackathon prototype. The current app and the planned four-tab presentation are described separately below so the project status stays clear. AI model and retrieval API choices are pending; no ChatGPT API has been wired in yet.
+The reference link is the existing production app. This clone is not connected to that Vercel project; deploy it separately to avoid changing production.
+
+> This repository is a separate copy of the existing Wardrobe OS app for backend experimentation. Keep its screens, copy, navigation, authentication, and user journey aligned with the original. The planned hackathon work is focused on backend Decision API experiments. Model and retrieval choices are pending; no new model has been connected.
 
 ## The idea
 
-Fashion discovery is spread across screenshots, shopping sites, saved posts, and the clothes people already own. Better Wardrobe brings those activities into one personal fashion workspace. The longer-term navigation groups the experience into **Discover**, **The Mall**, **Community**, and **Profile**.
+Fashion discovery is spread across screenshots, shopping sites, saved posts, and the clothes people already own. Better Wardrobe brings those activities into one personal fashion workspace. This clone keeps the original navigation and product flow intact.
 
 ## Current prototype
 
-- **Discover:** choose a garment from a reference image, describe what matters, and explore product matches. Sample results are available; live image and shopping search depend on server-side provider configuration.
-- **The Mall:** browse the existing brand and product discovery experience, including its source-backed feed and store directory.
-- **Community:** post a “find this” question and share a product lead. Shared posts require the Postgres-backed community API; without it, the app reports that Community is unavailable.
-- **Profile:** use the existing profile and account setup flow.
-- **Wardrobe and styling:** the codebase contains wardrobe and outfit flows, but they are currently marked as coming soon in the main navigation.
+- **Discover:** choose a garment from a reference image, describe what matters, explore product matches, and reach Community.
+- **My Wardrobe:** the existing wardrobe flow and local data handling; the original navigation currently labels it “Coming soon.”
+- **Style Me:** the existing outfit styling flow; the original navigation currently labels it “Coming soon.”
+- **My Profile:** the existing profile and account setup flow.
 
-The intended hackathon change is to expose Discover, The Mall, Community, and Profile as independent tabs while reusing the existing modules. That navigation restructuring is not yet represented as complete in this repository.
+Use the original app as the reference for the user experience. This clone is for backend and Decision API experiments; changes to screens or navigation are out of scope unless requested.
 
 ## Run locally
 
@@ -47,11 +48,11 @@ npm test
 - `prototype/lib/` contains server-side discovery, accounts, community, wardrobe, and related service modules.
 - `prototype/tests/` contains Node test-runner coverage for service and HTTP behavior.
 
-The current app uses Gemini or OpenRouter for configured vision analysis, SerpApi for configured shopping/image retrieval, and Ollama for the local walkthrough model. These are the existing prototype integrations, not the final hackathon API decision. The team will select the ChatGPT model and retrieval providers separately before changing them.
+The clone retains the existing provider integrations. Decision API model and retrieval provider choices will be supplied separately before backend changes are made. Keep credentials on the server and do not use API credits until the experiment is agreed.
 
 ## Data and setup notes
 
-- The local walkthrough stores wardrobe changes in browser storage; clearing browser data removes them.
+- Local mode stores wardrobe changes in browser storage; clearing browser data removes them.
 - Shared Community requires `COMMUNITY_DATABASE_URL` (or `POSTGRES_URL`) and a reachable Postgres database.
 - Discovery provider credentials belong in server environment variables. Keep them out of GitHub Actions logs, browser bundles, and committed files.
 - Live provider behavior depends on account access, quotas, and configuration. Example cards and sample results are not proof of current inventory, price, delivery, or exact item identity.
@@ -60,4 +61,4 @@ See [`prototype/README.md`](prototype/README.md), [`prototype/DISCOVERY.md`](pro
 
 ## Sharing and reuse
 
-This repository is public for hackathon review. No open-source license has been added, so public visibility does not grant permission to reuse the code. Contact the project owner for licensing or reuse questions.
+This repository is public for hackathon review. No open-source license has been added, so public visibility does not grant permission to reuse the code. Contact the project owner for licensing or reuse questions. The production app remains on Vercel; no ChatGPT Sites migration is planned for this clone.

@@ -23,3 +23,15 @@ test('home escapes profile names and reuses existing saved-chat renderer',()=>{
 test('look photo loading never uses an unrelated static placeholder',()=>{
  const {ui}=studio();const html=ui.lookArt({who:'Actor',label:'A gold aviator look'});assert.match(html,/Finding a web photo/);assert.doesNotMatch(html,/assets\/|<img/);
 });
+
+test('Mall map uses the interior floor plan and keeps all district entrances, visits and list view',()=>{
+ const {ui}=studio();const categories=['Everyday','Graphics','Streetwear'];
+ const brands=[{category:'Everyday'},{category:'Graphics'},{category:'Streetwear'}];
+ const html=ui.mallMap(categories,categories,brands,new Set(['Graphics']),new Set(['Streetwear']),'<span class="mall-avatar">walker</span>');
+ assert.match(html,/mall-scene ss-mall-scene/);assert.match(html,/mall-lane-floor ss-district-floor/);
+ assert.equal((html.match(/data-mall="category"/g)||[]).length,3);
+ assert.equal((html.match(/mall-lane-entry/g)||[]).length,3);
+ assert.match(html,/mall-avatar/);assert.match(html,/MEETING POINT/);assert.match(html,/Visited/);assert.match(html,/For you/);
+ assert.match(html,/aria-label="Enter Graphics, 1 stores"/);assert.match(html,/data-studio="mall-view" data-value="list"/);
+ assert.doesNotMatch(html,/data-tilt/);
+});

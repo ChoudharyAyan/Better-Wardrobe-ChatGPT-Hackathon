@@ -45,3 +45,15 @@ body{background:var(--ss-bg)}em{font-style:normal}[hidden]{display:none!importan
 .dc-shell .dc-examples .ss-look-card>button small{grid-area:1/2/2/3;min-height:0;margin:0;padding:0}
 .dc-shell .dc-examples .ss-look-card>button strong{grid-area:2/2/3/3;margin:0;padding:0}
 .dc-shell .ss-look-art[data-look-photo^="Virat Kohli"] img{transform:scale(2.2);transform-origin:50% 15%;object-position:50% 12%}
+
+/* The entrance and district interiors share the same overhead floor plan. */
+.ss-mall-scene{margin-bottom:28px;border-radius:16px}
+.ss-district-floor{gap:24px 60px;padding:26px 24px 38px;background:linear-gradient(90deg,#e8d7b9 0 calc(50% - 30px),#8d7971 calc(50% - 30px) calc(50% + 30px),#e8d7b9 calc(50% + 30px) 100%)}
+.ss-district-floor .ss-map-room{border:3px solid #4d3038;border-top:10px solid #8e1b4d;border-radius:7px;min-height:160px;padding:18px 16px;gap:24px;transform:none;box-shadow:4px 5px 0 #64484899;background:repeating-linear-gradient(90deg,#f8ead5 0 28px,#f4e4cf 28px 30px);justify-content:space-between}
+.ss-district-floor .ss-map-room:nth-child(4n+2),.ss-district-floor .ss-map-room:nth-child(4n+3){border-top-color:#465a50}
+.ss-district-floor .ss-map-room:hover{transform:translateY(-3px);box-shadow:4px 8px 0 #64484899}
+.ss-map-room .ss-district-top{flex-wrap:wrap;gap:6px}.ss-map-room .ss-tag{padding:5px 8px;font-size:9px}.ss-map-room .ss-district-bottom strong{font-size:24px}.ss-map-room .ss-district-bottom small{font-size:12px;margin-top:8px}.ss-map-room .mall-lane-entry{width:24px;height:24px}.ss-map-room.visited{border-top-color:#8e1b4d}.ss-map-room:focus-visible{outline:3px solid #E85A96;outline-offset:5px}
+.ss-mall-plaza{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;min-height:160px;color:#604a4b;font-size:10px;font-weight:800;letter-spacing:.08em;border:2px dashed #b6a18b;border-radius:7px;background:#e4d2b5}.ss-mall-plaza i{width:52px;height:52px;border-radius:50%;border:7px double #817983;background:radial-gradient(circle,#b3d0ca 0 12px,#779b98 13px 100%)}
+.ss-district-floor .mall-avatar-lanes{top:calc(100% - 15px)}
+@media(max-width:640px){.ss-district-floor{gap:18px 34px;padding:16px 10px 32px;background:linear-gradient(90deg,#e8d7b9 0 calc(50% - 17px),#8d7971 calc(50% - 17px) calc(50% + 17px),#e8d7b9 calc(50% + 17px) 100%)}.ss-district-floor .ss-map-room{padding:12px 9px;min-height:148px;gap:20px}.ss-map-room .ss-district-bottom strong{font-size:18px;letter-spacing:-.025em;overflow-wrap:anywhere}.ss-map-room .ss-district-bottom small{font-size:10px}.ss-map-room .ss-tag{font-size:8px;padding:4px 6px}.ss-map-room .ss-visited{font-size:9px}.ss-map-room .mall-lane-entry{width:18px;height:20px}.ss-mall-plaza{min-height:148px;font-size:8px}}
+.ss-district[hidden]{display:none}

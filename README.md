@@ -47,13 +47,13 @@ npm test
 - `prototype/lib/` contains server-side discovery, accounts, community, wardrobe, and related service modules.
 - `prototype/tests/` contains Node test-runner coverage for service and HTTP behavior.
 
-Discover uses OpenAI Responses for garment understanding, screenshot analysis, detection, order extraction, and candidate comparison. It uses GPT-5.4 mini (Max) or GPT-5.4 nano (Lite). Typed results are ranked with OpenAI Decisions (`gpt-6-luna`) when the API key is configured. Calls are server-side and pause at the $45 in-app spend guard. Production requires a durable Postgres URL and a SerpApi key for product retrieval; other model providers remain explicit local benchmarks.
+Discover uses OpenAI Responses for garment understanding, screenshot analysis, detection, order extraction, and candidate comparison. It uses GPT-5.4 mini (Max) or GPT-5.4 nano (Lite). Typed results are ranked with OpenAI Decisions (`gpt-6-luna`) when the API key is configured. Calls are server-side and no longer require a spend database. The $45 in-app guard is per Vercel instance and is not a global spending cap; configure an OpenAI project hard limit for a durable cross-instance cap. Product retrieval requires `SERPAPI_API_KEY`; other model providers remain explicit local benchmarks.
 
 ## Data and setup notes
 
 - The local walkthrough stores wardrobe changes in browser storage; clearing browser data removes them.
 - Shared Community requires `COMMUNITY_DATABASE_URL` (or `POSTGRES_URL`) and a reachable Postgres database.
-- OpenAI Decisions testing requires `OPENAI_API_KEY`, a separate hackathon Postgres database (`OPENAI_SPEND_DATABASE_URL` or `POSTGRES_URL`) for the durable $45 in-app spend stop, and `SERPAPI_API_KEY` for product retrieval. Set the OpenAI project cap to $50 in the OpenAI dashboard too. Add secrets directly in the `better-wardrobe-hackathon` Vercel project; never send or commit them.
+- OpenAI Decisions testing requires `OPENAI_API_KEY` and `SERPAPI_API_KEY` for product retrieval. Spend accounting is in memory per server instance and resets when an instance restarts. Set a project hard limit in the OpenAI dashboard to enforce a durable global cap. Add secrets directly in the `better-wardrobe-hackathon` Vercel project; never send or commit them.
 - Without Postgres on Vercel, the app keeps the existing 120 preview credits, disables the 50-credit welcome award, and serves sample Community threads read-only. This prevents an ephemeral serverless instance from issuing non-durable promotional credits.
 - Discovery provider credentials belong in server environment variables. Keep them out of GitHub Actions logs, browser bundles, and committed files.
 - Live provider behavior depends on account access, quotas, and configuration. Example cards and sample results are not proof of current inventory, price, delivery, or exact item identity.

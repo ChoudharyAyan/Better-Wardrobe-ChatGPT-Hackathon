@@ -19,16 +19,16 @@ test('Discover opens as a prompt-first conversation, not an image-only upload',(
 
 // A tiny DOM-less harness: the script only needs document listeners and a node to paint into.
 function harness(replies){
- const listeners={},calls=[],renders=[];let latest='';
+ const listeners={},calls=[],renders=[],windowListeners={};let latest='';
  const page={set outerHTML(value){latest=value;renders.push(value);}};
- const context={window:{},document:{addEventListener:(event,fn)=>{listeners[event]=fn;},getElementById:id=>id==='discover-conversation'?page:null},AbortController,TextDecoder,Uint8Array,
+ const context={window:{addEventListener:(event,fn)=>{(windowListeners[event]??=[]).push(fn);}},document:{addEventListener:(event,fn)=>{listeners[event]=fn;},getElementById:id=>id==='discover-conversation'?page:null},AbortController,clearTimeout,clearInterval,TextDecoder,Uint8Array,
   FormData:class{constructor(form){this.v=form.values;}get(k){return this.v[k];}},
   fetch:async(url,options={})=>{const action=url.split('/').pop();const body=options.body?JSON.parse(options.body):{};calls.push({action,body,headers:options.headers});const reply=typeof replies[action]==='function'?replies[action](body):replies[action];if(reply?.events){const chunks=reply.events.map(event=>new TextEncoder().encode(JSON.stringify(event)+'\n'));let i=0;return {ok:true,status:200,headers:{get:()=> 'application/x-ndjson'},body:{getReader:()=>({read:async()=>i<chunks.length?{done:false,value:chunks[i++]}:{done:true}})}};}return {ok:reply?.status?reply.status<400:true,status:reply?.status||200,json:async()=>reply};}};
  context.TextEncoder=TextEncoder;
  vm.runInNewContext(script,context);
  const settle=()=>new Promise(r=>setImmediate(r));
  const click=(action,data={})=>listeners.click({target:{closest:sel=>sel==='[data-conversation]'?{dataset:{conversation:action,...data}}:null}});
- return {context,listeners,calls,renders,latest:()=>latest,settle,click,ask:async text=>{listeners.input({target:{id:'dc-text',value:text}});listeners.submit({target:{id:'dc-compose'},preventDefault(){}});for(let i=0;i<4;i++)await settle();}};
+ return {context,listeners,calls,renders,windowListeners,latest:()=>latest,settle,click,ask:async text=>{listeners.input({target:{id:'dc-text',value:text}});listeners.submit({target:{id:'dc-compose'},preventDefault(){}});for(let i=0;i<4;i++)await settle();}};
 }
 const shirt={category:'shirt',colour:'black',fit:'relaxed',pattern:'',details:'linen',subtype:'',features:'',department:'menswear'};
 const found={results:[{title:'Black linen shirt',url:'https://www.snitch.com/p',merchant:'Snitch',priceText:'₹1,499',image:'https://img.example/p.jpg'}],warnings:[],
@@ -185,4 +185,47 @@ test('Mall invitation appears immediately and browsing keeps the search running'
  assert.deepEqual(h.calls.map(c=>c.action),['interpret','search']);
  assert.match(h.context.window.DiscoverConversation.render(),/Black linen shirt/);
  assert.doesNotMatch(h.context.window.DiscoverConversation.render(),/data-conversation="explore-mall"/);
+});
+
+
+test('unmounted mobile search retains its ticket, prompt, progress and ready notification',async()=>{
+ let interpretDone,searchDone;const interpret=new Promise(r=>interpretDone=r),search=new Promise(r=>searchDone=r);
+ const h=harness({interpret,search});
+ h.context.window.StickerStudio={guide:()=>'',promptChips:()=>'',modelModes:()=>'',skeletons:()=>''};
+ h.context.Event=Event;h.context.window.dispatchEvent=()=>{};h.context.setTimeout=fn=>fn();
+ h.context.location={hash:'#discover/ask'};
+ let mounted=true,pill=null;const original=h.context.document.getElementById;
+ h.context.document.getElementById=id=>id==='dc-ready-pill'?pill:mounted?original(id):null;
+ h.context.document.createElement=()=>({innerHTML:'',setAttribute(){},remove(){pill=null;}});
+ h.context.document.body={append(node){pill=node;}};
+ h.context.document.querySelector=()=>null;
+ await h.ask('black linen shirt');
+ h.click('explore-mall');h.context.location.hash='#discover/mall';mounted=false;
+ for(const fn of h.windowListeners.hashchange||[])fn();
+ assert.match(pill.innerHTML,/Search continues/);assert.match(pill.innerHTML,/black linen shirt/);
+ interpretDone({attributes:shirt,query:'black linen shirt',turn:'same-ticket'});
+ for(let i=0;i<4;i++)await h.settle();
+ assert.equal(h.calls.find(c=>c.action==='search').body.turn,'same-ticket');
+ assert.match(pill.innerHTML,/Back to my search/);
+ h.click('show-results');mounted=true;h.context.location.hash='#discover/ask';
+ for(const fn of h.windowListeners.hashchange||[])fn();
+ assert.equal(pill,null);assert.match(h.context.window.DiscoverConversation.render(),/dc-loading/);
+ h.click('explore-mall');mounted=false;h.context.location.hash='#discover/mall';
+ for(const fn of h.windowListeners.hashchange||[])fn();
+ searchDone(found);for(let i=0;i<6;i++)await h.settle();
+ assert.match(pill.innerHTML,/Your picks are ready/);assert.match(pill.innerHTML,/See results/);
+ h.click('show-results');assert.equal(h.context.location.hash,'discover/ask');mounted=true;
+ const html=h.context.window.DiscoverConversation.render();assert.match(html,/Black linen shirt/);assert.match(html,/black linen shirt/);
+ assert.equal(h.calls.filter(c=>c.action==='interpret').length,1);assert.equal(h.calls.filter(c=>c.action==='search').length,1);
+});
+
+test('screenshot choices render with Sticker Studio and browser timers',async()=>{
+ const h=harness({detect:{items:[{label:'Jacket'},{label:'Trousers'}]}});
+ h.context.window.StickerStudio={guide:()=>'',promptChips:()=>'',modelModes:()=>'',skeletons:()=>''};
+ h.context.Event=Event;h.context.window.dispatchEvent=()=>{};
+ h.context.createImageBitmap=async()=>({width:20,height:20,close(){}});
+ h.context.document.createElement=()=>({getContext:()=>({drawImage(){}}),toDataURL:()=> 'data:image/jpeg;base64,test'});
+ await h.listeners.change({target:{id:'dc-image-input',files:[{type:'image/jpeg',size:10}]}});
+ h.listeners.submit({target:{id:'dc-compose'},preventDefault(){}});for(let i=0;i<4;i++)await h.settle();
+ assert.match(h.latest(),/Which piece should I look for/);assert.match(h.latest(),/Jacket/);assert.match(h.latest(),/Trousers/);
 });

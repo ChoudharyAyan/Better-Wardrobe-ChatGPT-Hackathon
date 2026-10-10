@@ -101,7 +101,7 @@
       <span class="mall-roof"><span class="mall-roof-mark" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><strong>${escapeHtml(shortNames[index] || name)}</strong><small>${count} stores</small>${mine ? '<em class="mall-for-you">For you</em>' : ''}</span><span class="mall-door" aria-hidden="true"></span>
     </button>`;
   };
-  const map = () => window.StickerStudio?window.StickerStudio.mallMap(categories,shortNames,brands,progress.districts,forYou()):`<div class="mall-scene mall-overview">
+  const map = () => window.StickerStudio?window.StickerStudio.mallMap(categories,shortNames,brands,progress.districts,forYou(),avatar('mall-avatar-lanes')):`<div class="mall-scene mall-overview">
     <div class="mall-scene-top"><span><b class="mall-live-dot"></b> Mall map</span><span>${forYou().size ? 'Picked for you ✦' : 'Choose a district'}</span></div>
     <div class="mall-map" role="group" aria-label="Nine shopping districts">${categories.map(district).join('')}${avatar('mall-avatar-map')}<span class="mall-crossing mall-crossing-one" aria-hidden="true"></span><span class="mall-crossing mall-crossing-two" aria-hidden="true"></span></div>
     <div class="mall-scene-bottom"><span>01 / Mall map</span><span>Tap a building ↗</span></div>

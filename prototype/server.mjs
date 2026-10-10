@@ -7,6 +7,7 @@ import {createDiscovery,ApiError,modelKey} from './lib/discovery.mjs';
 import {createCredits} from './lib/credits.mjs';
 import {createChats} from './lib/chats.mjs';
 import {createAccounts,departmentFor} from './lib/accounts.mjs';
+import {createLookPhotos} from './lib/look-photos.mjs';
 import {lookCards} from './lib/looks.mjs';
 import {randomBytes} from 'node:crypto';
 import {createQaStore} from './lib/qa.mjs';
@@ -18,7 +19,7 @@ try{process.loadEnvFile(fileURLToPath(new URL('./.env',import.meta.url)));}catch
 const root=fileURLToPath(new URL('./dist/',import.meta.url));
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.jpg':'image/jpeg','.png':'image/png','.webp':'image/webp','.woff2':'font/woff2','.ttf':'font/ttf'};
 // The bare (req,res) listener is what Vercel's Node runtime invokes; createServer wraps it for local runs.
-export function createHandler(discovery=createDiscovery(),qaStore=createQaStore(),photos=createPhotos(),connectors=createConnectorStore(),community=createCommunity(),credits=createCredits(),chats=createChats(),accounts=createAccounts()){
+export function createHandler(discovery=createDiscovery(),qaStore=createQaStore(),photos=createPhotos(),connectors=createConnectorStore(),community=createCommunity(),credits=createCredits(),chats=createChats(),accounts=createAccounts(),lookPhotos=createLookPhotos()){
 return async(req,res)=>{
  const send=(status,data)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data));};
  try{const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -105,6 +106,7 @@ return async(req,res)=>{
   const {id,onboarded}=await accounts.authFinish({code:q.get('code'),state:q.get('state'),cookie:cookie('tbw_oauth'),redirectUri:origin()+'/api/auth/google/callback'});
   startSession(id);return redirect(onboarded?'/#discover':'/#onboarding');
  }
+ if(req.method==='GET'&&pathname==='/api/discover/look-photo'){const q=new URL(req.url,'http://localhost').searchParams.get('q')||'';if(q.trim().length<3||q.length>300)return send(400,{error:'Use a photo query between 3 and 300 characters.'});return send(200,await lookPhotos.search(q));}
  if(req.method==='GET'&&pathname==='/api/discover/looks')return send(200,{looks:lookCards()});
  const ip=()=>String(req.headers['x-forwarded-for']||'').split(',')[0].trim()||req.socket?.remoteAddress||'unknown';
  // Saved Discover chats (three per guest in the beta).

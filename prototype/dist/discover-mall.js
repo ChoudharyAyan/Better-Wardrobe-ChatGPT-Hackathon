@@ -101,7 +101,7 @@
       <span class="mall-roof"><span class="mall-roof-mark" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><strong>${escapeHtml(shortNames[index] || name)}</strong><small>${count} stores</small>${mine ? '<em class="mall-for-you">For you</em>' : ''}</span><span class="mall-door" aria-hidden="true"></span>
     </button>`;
   };
-  const map = () => `<div class="mall-scene mall-overview">
+  const map = () => window.StickerStudio?window.StickerStudio.mallMap(categories,shortNames,brands,progress.districts,forYou()):`<div class="mall-scene mall-overview">
     <div class="mall-scene-top"><span><b class="mall-live-dot"></b> Mall map</span><span>${forYou().size ? 'Picked for you ✦' : 'Choose a district'}</span></div>
     <div class="mall-map" role="group" aria-label="Nine shopping districts">${categories.map(district).join('')}${avatar('mall-avatar-map')}<span class="mall-crossing mall-crossing-one" aria-hidden="true"></span><span class="mall-crossing mall-crossing-two" aria-hidden="true"></span></div>
     <div class="mall-scene-bottom"><span>01 / Mall map</span><span>Tap a building ↗</span></div>
@@ -172,7 +172,7 @@
   const render = () => {
     if (updateFeed.phase === 'idle') void loadUpdates();
     return `<section id="discover-mall" class="discover-mall" aria-labelledby="mall-title"><div class="mall-heading"><div><p class="hub-eyebrow">Discover / 02</p><h2 id="mall-title">Explore the mall</h2><p>Walk into a district, pick a store, then see what is new.</p></div><span class="mall-source-count">${brands.length} stores</span></div>
-    <div class="mall-progress"><div><span class="mall-stamp">✳</span><strong>${progress.districts.size} of ${categories.length} districts explored</strong></div><span>${progress.stores.size} store ${progress.stores.size === 1 ? 'sign' : 'signs'} found</span></div>
+    ${window.StickerStudio?window.StickerStudio.passport(categories,progress.districts):''}<div class="mall-progress"><div><span class="mall-stamp">✳</span><strong>${progress.districts.size} of ${categories.length} districts explored</strong></div><span>${progress.stores.size} store ${progress.stores.size === 1 ? 'sign' : 'signs'} found</span></div>
     ${stage === 'map' ? map() : stage === 'lanes' ? laneScene() : stores()}
     ${directory()}
     <p class="mall-note">${refreshLabel()} Per-store check dates are shown above. Store updates come from public store pages and may be incomplete. Logos identify their respective stores; no partnership or endorsement is implied.</p>

@@ -14,7 +14,7 @@ const gemini=data=>({ok:true,json:async()=>({candidates:[{finishReason:'STOP',co
 
 test('order screenshot extraction keeps visible facts, crops thumbnails and never trusts bad values',async()=>{
  let prompt='';
- const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async(url,opts)=>{prompt=JSON.parse(opts.body).contents[0].parts[0].text;return gemini({retailer:'Slikk',items:[
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async(url,opts)=>{prompt=JSON.parse(opts.body).contents[0].parts[0].text;return gemini({retailer:'Slikk',items:[
   {name:'Black Leather Belt',type:'belt',brand:'',size:'',colour:'Black',price:599,status:'delivered',date:'2026-08-05',box:[800,100,950,250]},
   {name:'Relaxed Linen Shirt',brand:'Snitch',size:'M',colour:'',price:-5,status:'shipped?',date:'05 Aug',box:[1,1]},
   {name:'',brand:'',size:'',colour:'',price:null,status:'delivered',date:'',box:[0,0,500,500]}
@@ -127,7 +127,7 @@ test('Instagram reader orders by post date from the export index and never lists
 
 test('detect narrows a group photo to the person the user tapped, and ignores bad taps',async()=>{
  const prompts=[];
- const d=createDiscovery({env:{GEMINI_API_KEY:'test'},fetcher:async(url,opts)=>{prompts.push(JSON.parse(opts.body).contents[0].parts[0].text);return gemini({items:[]});}});
+ const d=createDiscovery({env:{VISION_PROVIDER:'gemini',GEMINI_API_KEY:'test'},fetcher:async(url,opts)=>{prompts.push(JSON.parse(opts.body).contents[0].parts[0].text);return gemini({items:[]});}});
  await d.detect({image,focus:{x:18.4,y:52}});
  await d.detect({image,focus:{x:'<b>',y:900}});
  await d.detect({image});

@@ -8,7 +8,7 @@ From this directory, run `npm run local`, then visit http://127.0.0.1:5173/. Thi
 
 The local testing setup uses `qwen3-vl:2b` through Ollama for garment analysis and visual scoring. It has no LLM request quota and does not send the crop to an LLM provider. The model and Ollama binaries live in the project-level `.local-models/` and `.local-tools/` folders.
 
-Discover uses `DISCOVERY_DATA_MODE=auto`: the first exact crop and search combination calls the configured search providers and records a successful final result in `.local-data/discovery-replays.json`. Repeating the exact input replays that result without spending SerpApi calls. Set the mode to `live` to bypass recordings, or `replay` to prohibit all new provider searches. Gemini remains configured as an optional benchmark and can be selected with `VISION_PROVIDER=gemini`.
+Discover uses `DISCOVERY_DATA_MODE=auto`: the first exact crop and search combination calls the configured search providers and records a successful final result in `.local-data/discovery-replays.json`. Repeating the exact input replays that result without spending SerpApi calls. Set the mode to `live` to bypass recordings, or `replay` to prohibit all new provider searches. OpenAI Responses is the production AI provider. Gemini/OpenRouter remain optional local benchmarks only.
 
 ## Suggested walkthrough
 

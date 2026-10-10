@@ -8,7 +8,7 @@
     model:'',wallet:null,menuOpen:false,editing:false,listening:false,
     chats:[],chatId:null,chatTitle:'',chatLimit:null,readyPill:false
   };
-  const FALLBACK_MODELS=[{id:'gemini-3-flash',label:'Max',note:'Most accurate',credits:15},{id:'gpt-5-nano',label:'Lite',note:'More searches',credits:8}];
+  const FALLBACK_MODELS=[{id:'gpt-5.4-mini',label:'Max',note:'Most accurate',credits:15},{id:'gpt-5.4-nano',label:'Lite',note:'More searches',credits:8}];
   // Loading lines speak to the person and their piece, never to which stores are searched (design QA #19):
   // the store links come at the end anyway.
   const firstName = () => String(globalThis.window?.TBWAccount?.profile?.name||'').trim().split(/\s+/)[0]||'';

@@ -1,6 +1,6 @@
 # The Better Wardrobe — local walkthrough
 
-A mobile-first, interactive prototype. The current UI follows `Design Docs New/`: Montserrat, warm neutrals, rose accents and a physical almirah for the wardrobe.
+A mobile-first, interactive prototype. Its primary navigation is **Discover**, **The Mall**, **Community**, and **Profile**. The Mall and Community keep their existing renderers and interactions as separate destinations. Profile continues to use the existing account and onboarding components. The UI follows `Design Docs New/`: Montserrat, warm neutrals, rose accents and a physical almirah for the wardrobe.
 
 ## Run
 

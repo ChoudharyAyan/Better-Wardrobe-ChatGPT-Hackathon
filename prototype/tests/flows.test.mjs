@@ -76,8 +76,14 @@ test('Google Photos stays out of the import hub until the server has a client ID
   const a=app();a.visit('wardrobe/add');assert.doesNotMatch(a.nodes.get('main').innerHTML,/import-google/);
   a.run('googlePhotosReady=true;render()');assert.match(a.nodes.get('main').innerHTML,/import-google/);
 });
-test('navigation follows the funnel: Discover, My Wardrobe, Style Me, then Profile, opening on Discover',()=>{
+test('primary navigation exposes Discover, The Mall, Community, and Profile, opening on Discover',()=>{
   const a=app();
-  assert.equal(a.run('JSON.stringify(tabs.map(t=>t[1]))'),JSON.stringify(['Discover','My Wardrobe','Style Me','My Profile']));
+  assert.equal(a.run('JSON.stringify(tabs.map(t=>t[1]))'),JSON.stringify(['Discover','The Mall','Community','Profile']));
   assert.equal(a.run('route'),'discover','a fresh visit with no hash lands on Discover');
+  a.context.window.DiscoverMall={render:()=>'<div id="discover-mall">Mall module</div>'};
+  a.context.window.DiscoverHub={renderCommunity:()=>'<div id="discover-hub" data-surface="community">Community module</div>'};
+  a.visit('mall');assert.match(a.nodes.get('main').innerHTML,/Mall module/);
+  a.visit('community');assert.match(a.nodes.get('main').innerHTML,/Community module/);
+  a.context.window.Onboarding={profileCard:()=>'<article>Existing Profile implementation</article>'};
+  a.visit('profile');assert.match(a.nodes.get('main').innerHTML,/Existing Profile implementation/);
 });

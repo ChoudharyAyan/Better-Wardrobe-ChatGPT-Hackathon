@@ -2,9 +2,9 @@
 
 **A fashion discovery and wardrobe prototype for finding a look, exploring similar pieces, and keeping personal style in one place.**
 
-[Live project tour](https://wardrobeos-hackathon.ayan-ayan-choudhary.chatgpt.site) · [Source repository](https://github.com/ChoudharyAyan/Better-Wardrobe-ChatGPT-Hackathon)
+[Try the Vercel preview](https://better-wardrobe-hackathon.vercel.app) · [Source repository](https://github.com/ChoudharyAyan/Better-Wardrobe-ChatGPT-Hackathon)
 
-> This is an evolving hackathon prototype. The current app and the planned four-tab presentation are described separately below so the project status stays clear. AI model and retrieval API choices are pending; no ChatGPT API has been wired in yet.
+> This is an evolving hackathon prototype. The existing Wardrobe OS journey remains intact. The optional Decisions API path is being tested separately; it is off by default.
 
 ## The idea
 
@@ -14,11 +14,11 @@ Fashion discovery is spread across screenshots, shopping sites, saved posts, and
 
 - **Discover:** choose a garment from a reference image, describe what matters, and explore product matches. Sample results are available; live image and shopping search depend on server-side provider configuration.
 - **The Mall:** browse the existing brand and product discovery experience, including its source-backed feed and store directory.
-- **Community:** post a “find this” question and share a product lead. Shared posts require the Postgres-backed community API; without it, the app reports that Community is unavailable.
+- **Community:** post a “find this” question and share a product lead. The Vercel preview shows three read-only sample threads; shared posts require a dedicated Postgres database.
 - **Profile:** use the existing profile and account setup flow.
 - **Wardrobe and styling:** the codebase contains wardrobe and outfit flows, but they are currently marked as coming soon in the main navigation.
 
-The intended hackathon change is to expose Discover, The Mall, Community, and Profile as independent tabs while reusing the existing modules. That navigation restructuring is not yet represented as complete in this repository.
+The current Vercel deployment preserves the original navigation and user journey. ChatGPT Sites is not the deployment target for this preview.
 
 ## Run locally
 
@@ -47,12 +47,14 @@ npm test
 - `prototype/lib/` contains server-side discovery, accounts, community, wardrobe, and related service modules.
 - `prototype/tests/` contains Node test-runner coverage for service and HTTP behavior.
 
-The current app uses Gemini or OpenRouter for configured vision analysis, SerpApi for configured shopping/image retrieval, and Ollama for the local walkthrough model. These are the existing prototype integrations, not the final hackathon API decision. The team will select the ChatGPT model and retrieval providers separately before changing them.
+Existing screenshot and chat analysis still uses the repository's configured Gemini/OpenRouter/local providers. A guarded, opt-in Decisions API ranker is available for typed searches. Its model requests are server-side, use `gpt-6-luna`, and stay disabled until `DECISIONS_RANK=1`.
 
 ## Data and setup notes
 
 - The local walkthrough stores wardrobe changes in browser storage; clearing browser data removes them.
 - Shared Community requires `COMMUNITY_DATABASE_URL` (or `POSTGRES_URL`) and a reachable Postgres database.
+- OpenAI Decisions testing requires `OPENAI_API_KEY`, a separate hackathon Postgres database (`OPENAI_SPEND_DATABASE_URL` or `POSTGRES_URL`) for the durable $45 in-app spend stop, and `SERPAPI_API_KEY` for product retrieval. Set the OpenAI project cap to $50 in the OpenAI dashboard too. Add secrets directly in the `better-wardrobe-hackathon` Vercel project; never send or commit them.
+- Without Postgres on Vercel, the app keeps the existing 120 preview credits, disables the 50-credit welcome award, and serves sample Community threads read-only. This prevents an ephemeral serverless instance from issuing non-durable promotional credits.
 - Discovery provider credentials belong in server environment variables. Keep them out of GitHub Actions logs, browser bundles, and committed files.
 - Live provider behavior depends on account access, quotas, and configuration. Example cards and sample results are not proof of current inventory, price, delivery, or exact item identity.
 

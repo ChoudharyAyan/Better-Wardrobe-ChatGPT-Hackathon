@@ -140,3 +140,18 @@ test('design QA #20: an empty Discover greets with a mascot instead of the star,
  const who=html.match(/aria-label="(\w+) the \w+ says hi/)[1];
  h.click('mascot');assert.notEqual(h.latest().match(/aria-label="(\w+) the \w+ says hi/)[1],who,'tapping meets a different friend');
 });
+
+test('Sticker Studio trending cards fill the draft and only search on explicit submission',async()=>{
+ const look={id:'don-draper-aviators',who:'Don Draper · Mad Men',label:'Don Draper’s gold aviators',department:'menswear'};
+ const h=harness({credits:{remaining:120},looks:{looks:[look]},interpret:{attributes:shirt,query:'gold aviator sunglasses',turn:'look-ticket'},search:found});
+ h.context.window.fetch=h.context.fetch;
+ h.context.window.dispatchEvent=()=>{};h.context.Event=class {};
+ h.context.window.StickerStudio={guide:()=>'',lookArt:()=>'',modelModes:()=>'',promptChips:()=>'',skeletons:()=>''};
+ h.context.window.DiscoverConversation.render();for(let i=0;i<4;i++)await h.settle();
+ await h.click('look',{index:'0'});
+ assert.match(h.latest(),/Don Draper’s gold aviators<\/textarea>/);
+ assert.equal(h.calls.filter(c=>['interpret','search'].includes(c.action)).length,0,'card selection must not spend search credits');
+ await h.ask(look.label);
+ const interpret=h.calls.find(c=>c.action==='interpret');assert.equal(interpret.body.look,look.id,'researched look identity is preserved');
+ assert.equal(h.calls.filter(c=>c.action==='search').length,1);
+});

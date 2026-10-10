@@ -31,7 +31,7 @@
     const want=account()?.profile?.gender==='male'?'menswear':account()?.profile?.gender==='female'?'womenswear':'';
     const pool=[...looks].sort(()=>Math.random()-.5).filter(l=>!shown.some(s=>s.id===l.id)||looks.length<=3);
     const mine=want?pool.filter(l=>l.department===want):[],rest=pool.filter(l=>!mine.includes(l));
-    shown=(want?[...mine.slice(0,2),...rest.slice(0,1),...mine.slice(2),...rest.slice(1)]:pool).slice(0,3);
+    shown=(want?[...mine.slice(0,2),...rest.slice(0,1),...mine.slice(2),...rest.slice(1)]:pool).slice(0,window.StickerStudio?4:3);
   }
   const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const known = value => /^(unknown|n\/?a|none|not visible|unclear)$/i.test(String(value??'').trim())?'':String(value??'');
@@ -57,7 +57,7 @@
   let walletRequested=false,chatsRequested=false;
   async function loadWallet(){if(walletRequested||!hasFetch())return;walletRequested=true;try{const r=await window.fetch('/api/discover/credits');if(r.ok){state.wallet=await r.json();paint();if(globalThis.location?.hash==='#profile')window.dispatchEvent?.(new Event('account-change'));}}catch{}}
   let looksRequested=false;
-  async function loadLooks(){if(looksRequested||!hasFetch())return;looksRequested=true;try{const r=await window.fetch('/api/discover/looks');if(r.ok){looks=(await r.json()).looks||[];shuffleLooks();paint();}}catch{}}
+  async function loadLooks(){if(looksRequested||!hasFetch())return;looksRequested=true;try{const r=await window.fetch('/api/discover/looks');if(r.ok){looks=(await r.json()).looks||[];shuffleLooks();if(window.StickerStudio){const featured=['kiara-wedding-lehenga','virat-airport-cardigan','thomas-shelby-cap','alia-met-gala-saree'].map(id=>looks.find(look=>look.id===id)).filter(Boolean);if(featured.length===4)shown=featured;}paint();}}catch{}}
   // Saved chats are for people with a profile; guests who explore freely don't get them.
   async function loadChats(){if(chatsRequested||!hasFetch()||!signedIn())return;chatsRequested=true;try{const r=await window.fetch('/api/discover/chats');if(r.ok){state.chats=(await r.json()).chats||[];paint();}}catch{}}
   async function request(action,body,signal){
@@ -140,8 +140,9 @@
     }catch(error){if(error.name!=='AbortError'){state.stage=state.results?'results':'start';state.messages.push({role:'assistant',text:error.status===403?'That search used its free refine. Ask a new question to search again.':error.message||'The product search did not finish. Please retry.'});}}
     finally{stopLoading();state.controller=null;paint();if(state.stage==='results')flagReady();saveChat();}
   }
+  let selectedLook=null;
   async function send(){
-    if(state.busy)return;const text=state.draft.trim(),image=state.pending;if(!text&&!image)return;
+    if(state.busy)return;const text=state.draft.trim(),image=state.pending;if(!text&&!image){window.StickerStudio?.invalid();return;}
     stopListening();state.draft='';state.pending=null;state.messages.push({role:'user',text,image});
     const clarification=state.followup,previous=state.current||clarification?.previous||null;state.followup=null;
     const searchText=clarification?[clarification.text,text].filter(Boolean).join('. '):text,searchImage=image||clarification?.image||null;
@@ -154,7 +155,7 @@
       }catch(error){if(error.name==='AbortError'){stopLoading();state.controller=null;paint();return;}}
       stopLoading();
     }
-    await ask(searchText,searchImage,'',previous);
+    await ask(searchText,searchImage,'',previous,selectedLook?.label===searchText?selectedLook.id:undefined);selectedLook=null;
   }
   function refine(form){
     if(state.busy||!state.current)return;const data=new FormData(form),value=k=>String(data.get(k)||'').trim();
@@ -167,7 +168,7 @@
   // ---- results-ready pop-up ------------------------------------------------------------------
   // Shown when results land while the person is elsewhere (the mall, another tab, another app).
   // It stays until they see the results or close it.
-  const onDiscover = () => !globalThis.location||/^#?(discover)?$/.test(globalThis.location.hash||'');
+  const onDiscover = () => !globalThis.location||(window.StickerStudio?globalThis.location.hash==='#discover/ask':/^#?(discover)?$/.test(globalThis.location.hash||''));
   function resultsInView(){
     const r=document.querySelector?.('.dc-results')?.getBoundingClientRect?.(),h=globalThis.innerHeight||0;
     return Boolean(r&&onDiscover()&&r.top<h*.7&&r.bottom>h*.2);
@@ -190,7 +191,7 @@
     const thumbs=distinct(state.results?.results||[]).filter(x=>x.image).slice(0,3);
     pill.innerHTML=`<div class="dc-ready-top"><span class="dc-ready-kicker">✨ Search complete</span><button type="button" class="dc-ready-close" data-conversation="dismiss-ready" aria-label="Dismiss">×</button></div><div class="dc-ready-body">${thumbs.length?`<span class="dc-ready-stack" aria-hidden="true">${thumbs.map(x=>`<img src="${escape(x.image)}" alt="">`).join('')}</span>`:'<span class="dc-ready-spark" aria-hidden="true">✨</span>'}<div><strong>${firstName()?`${escape(firstName())}, your picks are ready`:'Your picks are ready'}</strong><small>${escape(readyText())}</small></div></div><button type="button" class="dc-ready-go" data-conversation="show-results">See results <span aria-hidden="true">→</span></button>`;
   }
-  function showResults(){dismissReady();const go=()=>document.querySelector('.dc-results')?.scrollIntoView({behavior:'smooth',block:'start'});if(!onDiscover()){location.hash='discover';setTimeout(go,350);}else go();}
+  function showResults(){dismissReady();const go=()=>document.querySelector('.dc-results')?.scrollIntoView({behavior:'smooth',block:'start'});if(!onDiscover()){location.hash=window.StickerStudio?'discover/ask':'discover';setTimeout(go,350);}else go();}
 
   // ---- voice input (Web Speech API; needs https) -----------------------------------------------
   const Recognition = () => (typeof window!=='undefined'&&(window.SpeechRecognition||window.webkitSpeechRecognition))||null;
@@ -209,7 +210,7 @@
 
   // ---- rendering ------------------------------------------------------------------------------
   const renderMessage = message => `<article class="dc-message ${message.role==='user'?'dc-user':'dc-assistant'}"><span class="dc-speaker">${message.role==='user'?'You':'The Wardrobe OS'}</span><div class="dc-bubble">${message.image?`<img src="${escape(message.image)}" alt="Uploaded fashion reference" class="dc-message-image">`:''}${message.text?`<p>${escape(message.text)}</p>`:''}${message.meta?`<small class="dc-meta">${escape(message.meta)}</small>`:''}</div></article>`;
-  const renderChoices = () => state.stage!=='choose'?'':`<div class="dc-choice-panel"><p>Which piece should I look for?</p><div class="dc-choice-list">${state.choices.map((item,index)=>`<button type="button" data-conversation="choice" data-index="${index}">${escape(item.label)} <span aria-hidden="true">↗</span></button>`).join('')}</div></div>`;
+  const renderChoices = () => state.stage!=='choose'?'':`<div class="dc-choice-panel"><p>Which piece should I look for?</p><div class="dc-choice-list">${state.choices.map((item,index)=>`<button type="button" data-conversation="choice" data-index="${index}">${escape(item.label)} <span aria-hidden="true">↗</span></button>${window.StickerStudio?`${window.StickerStudio.lookSource?.(x)||''}</article>`:''}`).join('')}</div></div>`;
   // Loading mascot (owner, 6 Oct 2026): a different friendly face each search: panda, pug, cat or fox.
   // Inline SVG, no image requests; it bobs and blinks, and stays still for reduced motion.
   const eyes=(lx,rx,y,r=4.2)=>`<g class="dc-eyes"><circle cx="${lx}" cy="${y}" r="${r}" fill="#281b22"/><circle cx="${rx}" cy="${y}" r="${r}" fill="#281b22"/><circle cx="${lx+1.4}" cy="${y-1.6}" r="1.3" fill="#fff"/><circle cx="${rx+1.4}" cy="${y-1.6}" r="1.3" fill="#fff"/></g>`;
@@ -222,9 +223,9 @@
   };
   let mascot=Object.keys(MASCOTS)[Math.floor(Math.random()*4)];
   const pickMascot = () => {const keys=Object.keys(MASCOTS).filter(k=>k!==mascot);mascot=keys[Math.floor(Math.random()*keys.length)];};
-  const renderMascot = () => `<figure class="dc-mascot" aria-label="${escape(MASCOTS[mascot].name)} is searching with you"><svg viewBox="0 0 100 100" aria-hidden="true">${MASCOTS[mascot].svg}</svg><span class="dc-mascot-shadow" aria-hidden="true"></span><figcaption>${escape(MASCOTS[mascot].name)} is on it</figcaption></figure>`;
+  const renderMascot = () => window.StickerStudio?window.StickerStudio.guide('I’m on it. Finding the pieces for you.',100):`<figure class="dc-mascot" aria-label="${escape(MASCOTS[mascot].name)} is searching with you"><svg viewBox="0 0 100 100" aria-hidden="true">${MASCOTS[mascot].svg}</svg><span class="dc-mascot-shadow" aria-hidden="true"></span><figcaption>${escape(MASCOTS[mascot].name)} is on it</figcaption></figure>`;
   // The same friend greets people on an empty Discover (design QA #20: a mascot instead of the star). Tap for another.
-  const renderHello = () => {const m=MASCOTS[mascot];return `<button type="button" class="dc-hello" data-conversation="mascot" aria-label="${escape(m.name)} says hi. Tap to meet another friend."><span class="dc-hello-bubble">Hi, I’m ${escape(m.name.split(' ')[0])} 👋</span><svg viewBox="0 0 100 100" aria-hidden="true">${m.svg}</svg><span class="dc-mascot-shadow" aria-hidden="true"></span></button>`;};
+  const renderHello = () => {if(window.StickerStudio)return window.StickerStudio.guide('Words, a screenshot, or both. Your call.',112);const m=MASCOTS[mascot];return `<button type="button" class="dc-hello" data-conversation="mascot" aria-label="${escape(m.name)} says hi. Tap to meet another friend."><span class="dc-hello-bubble">Hi, I’m ${escape(m.name.split(' ')[0])} 👋</span><svg viewBox="0 0 100 100" aria-hidden="true">${m.svg}</svg><span class="dc-mascot-shadow" aria-hidden="true"></span></button>`;};
   window.TBWMascot={svg:()=>`<svg viewBox="0 0 100 100" aria-hidden="true">${MASCOTS[mascot].svg}</svg>`,name:()=>MASCOTS[mascot].name};
   const renderLoading = () => !state.busy?'':`<div class="dc-loading" role="status" aria-live="polite">${renderMascot()}<p id="dc-loading-line">${escape(state.progress||loadingLines()[0])}</p>${state.showMallHint?`<div class="dc-mall-hint"><span>This one takes a moment. We’ll let you know when it’s ready.</span><button type="button" data-conversation="explore-mall">Explore the mall meanwhile ↓</button></div>`:''}<button type="button" class="dc-cancel" data-conversation="cancel">Cancel</button></div>`;
   const field = (label,name,value,placeholder='') => `<label><span>${label}</span><input name="${name}" value="${escape(known(value))}" placeholder="${escape(placeholder)}"></label>`;
@@ -263,20 +264,21 @@
   const renderLooks = () => {
     const idea=account()?.profile?.custom;
     if(!shown.length&&!idea)return '';
-    return `<div class="dc-looks"><div class="dc-looks-head"><span class="dc-kicker">Trending looks</span>${looks.length>3?`<button type="button" class="dc-shuffle" data-conversation="shuffle">Shuffle ↻</button>`:''}</div><div class="dc-examples">${idea?`<button type="button" class="dc-idea" data-conversation="idea"><small>Your idea</small>${escape(idea)} <span aria-hidden="true">↗</span></button>`:''}${shown.map((x,i)=>`<button type="button" data-conversation="look" data-index="${i}"><small>${escape(x.who)}</small>${escape(x.label)} <span aria-hidden="true">↗</span></button>`).join('')}</div></div>`;
+    return `<div class="dc-looks"><div class="dc-looks-head"><span class="dc-kicker">Trending looks</span>${looks.length>3?`<button type="button" class="dc-shuffle" data-conversation="shuffle">Shuffle ↻</button>`:''}</div><div class="dc-examples">${idea?`<button type="button" class="dc-idea" data-conversation="idea"><small>Your idea</small>${escape(idea)} <span aria-hidden="true">↗</span></button>`:''}${shown.map((x,i)=>`${window.StickerStudio?'<article class="ss-look-card">':''}<button type="button" data-conversation="look" data-index="${i}"><small>${escape(x.who)}</small>${window.StickerStudio?.lookArt(x)||''}<strong>${escape(x.label)}</strong> <span aria-hidden="true">↗</span></button>${window.StickerStudio?`${window.StickerStudio.lookSource?.(x)||''}</article>`:''}`).join('')}</div></div>`;
   };
   const renderChatLimit = () => !state.chatLimit?'':`<div class="dc-chat-limit" role="dialog" aria-label="Chat limit"><strong>You can keep 3 chats in the beta.</strong><p>${state.chatLimit.retrySave?'Delete one to save this chat.':'Delete one to start a new chat.'}</p><ul>${state.chatLimit.chats.map(c=>`<li><span>${escape(c.title)}</span><button type="button" data-conversation="delete-chat" data-id="${escape(c.id)}">Delete</button></li>`).join('')}</ul><button type="button" class="dc-edit" data-conversation="limit-cancel">Keep all</button></div>`;
   const renderModelMenu = () => {
     const m=currentModel();
+    if(window.StickerStudio)return window.StickerStudio.modelModes(models(),m,state.busy);
     return `<div class="dc-model"><button type="button" class="dc-model-chip" data-conversation="model-menu" aria-haspopup="listbox" aria-expanded="${state.menuOpen}" ${state.busy?'disabled':''}>${escape(m.label)} · ${m.credits} credits <span aria-hidden="true">▾</span></button>${state.menuOpen?`<ul class="dc-model-menu" role="listbox" aria-label="Search model">${models().map(x=>`<li role="option" aria-selected="${x.id===m.id}"><button type="button" data-conversation="pick-model" data-id="${escape(x.id)}"><span><b>${escape(x.label)}</b><small>${escape(x.note)}${state.wallet?` · ${searchesLeft(x)} left`:''}</small></span><em>${x.credits} credits</em>${x.id===m.id?'<i aria-hidden="true">✓</i>':''}</button></li>`).join('')}</ul>`:''}</div>`;
   };
   const renderWallet = () => {if(!state.wallet)return '';const m=currentModel(),left=searchesLeft(m);return `<span class="dc-wallet ${state.wallet.remaining<m.credits?'empty':''}"><b>${state.wallet.remaining}</b> credits · ${left} ${left===1?'search':'searches'} left${state.wallet.promoCredits?` · ${state.wallet.promoCredits} XP`:''}</span>`;};
   function content(){
-    const voice=voiceReady()?`<button type="button" class="dc-mic ${state.listening?'on':''}" data-conversation="voice" aria-pressed="${state.listening}" aria-label="${state.listening?'Stop listening':'Speak your search'}" ${state.busy?'disabled':''}>${state.listening?'■':'🎙'}</button>`:'';
+    const voice=voiceReady()?`<button type="button" class="dc-mic ${state.listening?'on':''}" data-conversation="voice" aria-pressed="${state.listening}" aria-label="${state.listening?'Stop listening':'Speak your search'}" ${state.busy?'disabled':''}>${window.StickerStudio?.icon(state.listening?'stop':'mic')||(state.listening?'■':'Mic')}</button>`:'';
     const empty=!state.messages.length;
-    return `<section id="discover-conversation" class="dc-shell"><div class="dc-intro"><div><span class="dc-kicker">Discover / search</span><h1>Describe a garment you want to find.</h1><p>Add details, a screenshot, or both.</p></div></div>${renderChats()}${renderChatLimit()}<div class="dc-panel"><div class="dc-thread" aria-live="polite">${empty?`<div class="dc-welcome">${renderHello()}<h2>What caught your eye?</h2><p>Choose an example or describe a garment in your own words.</p></div>${renderLooks()}`:state.messages.map(renderMessage).join('')}${renderChoices()}${renderResults()}${renderLoading()}</div><form id="dc-compose" class="dc-composer"><input id="dc-image-input" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="dc-attachment">${state.pending?`<div class="dc-pending"><img src="${escape(state.pending)}" alt="Screenshot ready to send"><span>Screenshot attached</span><button type="button" data-conversation="remove-image" aria-label="Remove screenshot">×</button></div>`:''}</div><div class="dc-compose-row"><button type="button" class="dc-attach" data-conversation="attach" aria-label="Attach a screenshot" title="Attach screenshot">＋</button><label class="dc-text-wrap"><span class="sr-only">Describe the garment you want to find</span><textarea id="dc-text" rows="2" maxlength="500" placeholder="${state.listening?'Listening… speak now':'Describe a garment, ask a question, or add a screenshot…'}" ${state.busy?'disabled':''}>${escape(state.draft)}</textarea></label>${voice}</div><div class="dc-compose-bar">${renderModelMenu()}${renderWallet()}<button type="submit" class="dc-send" ${state.busy||(state.wallet&&state.wallet.remaining<currentModel().credits)?'disabled':''}>Search <span aria-hidden="true">→</span></button></div><p class="dc-compose-help">${escape(currentModel().note)} · JPG, PNG or WebP · Your image is sent for analysis only when you press search.</p></form></div><div class="dc-below"><span>01 / Search by conversation</span><span>Keep exploring the mall and community below ↓</span></div></section>`;
+    return `<section id="discover-conversation" class="dc-shell"><div class="dc-intro"><div><span class="dc-kicker">Discover / search</span><h1>${window.StickerStudio?'Ask Bao.<br>Find your next favourite.':'Describe a garment you want to find.'}</h1><p>Add details, a screenshot, or both.</p></div></div>${window.StickerStudio?'':renderChats()}${renderChatLimit()}<div class="dc-panel"><div class="dc-thread" aria-live="polite">${empty?`<div class="dc-welcome">${renderHello()}<h2>What caught your eye?</h2><p>Choose an example or describe a garment in your own words.</p></div>${renderLooks()}`:state.messages.map(renderMessage).join('')}${renderChoices()}${renderResults()}${renderLoading()}${state.busy&&window.StickerStudio?window.StickerStudio.skeletons():''}</div><form id="dc-compose" class="dc-composer">${window.StickerStudio?window.StickerStudio.promptChips():''}<input id="dc-image-input" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="dc-attachment">${state.pending?`<div class="dc-pending"><img src="${escape(state.pending)}" alt="Screenshot ready to send"><span>Screenshot attached</span><button type="button" data-conversation="remove-image" aria-label="Remove screenshot">×</button></div>`:''}</div>${window.StickerStudio?'<div id="ss-prompt-photo" class="ss-prompt-photo" aria-live="polite"></div>':''}<div class="dc-compose-row"><button type="button" class="dc-attach" data-conversation="attach" aria-label="Attach a screenshot" title="Attach screenshot">＋</button><label class="dc-text-wrap"><span class="sr-only">Describe the garment you want to find</span><textarea id="dc-text" rows="2" maxlength="500" placeholder="${state.listening?'Listening… speak now':'Describe a garment, ask a question, or add a screenshot…'}" ${state.busy?'disabled':''}>${escape(state.draft)}</textarea></label>${voice}</div><div class="dc-compose-bar">${renderModelMenu()}${renderWallet()}<button type="submit" class="dc-send" ${state.busy||(state.wallet&&state.wallet.remaining<currentModel().credits)?'disabled':''}>Search <span aria-hidden="true">→</span></button></div><p class="dc-compose-help">${escape(currentModel().note)} · JPG, PNG or WebP · Your image is sent for analysis only when you press search.</p></form></div><div class="dc-below"><span>01 / Search by conversation</span><span>Keep exploring the mall and community below ↓</span></div></section>`;
   }
-  function paint(focus=false){const target=root();if(!target)return;target.outerHTML=content();const thread=document.querySelector?.('.dc-thread');if(thread&&state.stage!=='results')thread.scrollTop=thread.scrollHeight;if(focus)document.getElementById('dc-text')?.focus();}
+  function paint(focus=false){if(window.StickerStudio)window.dispatchEvent(new Event("sticker-data"));const target=root();if(!target)return;target.outerHTML=content();const thread=document.querySelector?.('.dc-thread');if(thread&&state.stage!=='results')thread.scrollTop=thread.scrollHeight;if(focus)document.getElementById('dc-text')?.focus();}
 
   // ---- images ---------------------------------------------------------------------------------
   async function toImage(file){if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Choose a JPG, PNG or WebP screenshot.');if(file.size>10*1024*1024)throw new Error('Choose an image under 10 MB.');const bitmap=await createImageBitmap(file);try{const scale=Math.min(1,1280/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);let quality=.86,data=canvas.toDataURL('image/jpeg',quality);while(data.length>3_700_000&&quality>.45){quality-=.12;data=canvas.toDataURL('image/jpeg',quality);}if(data.length>4_100_000)throw new Error('This image is still too large. Try a tighter crop.');return data;}finally{bitmap.close();}}
@@ -290,7 +292,8 @@
     const button=event.target.closest('[data-conversation]');if(!button)return;const action=button.dataset.conversation;
     if(action==='attach')document.getElementById('dc-image-input')?.click();
     else if(action==='remove-image'){state.pending=null;paint(true);}
-    else if(action==='look'){const look=shown[Number(button.dataset.index)];if(!look||state.busy)return;state.messages.push({role:'user',text:look.label});state.source={text:look.label,image:null};state.stage='working';state.choices=[];state.followup=null;ask(look.label,null,'',null,look.id);}
+    else if(action==='prompt'){if(state.busy)return;selectedLook=null;state.draft=button.dataset.value;paint(true);}
+    else if(action==='look'){const look=shown[Number(button.dataset.index)];if(!look||state.busy)return;if(window.StickerStudio){selectedLook=look;state.draft=look.label;paint(true);document.getElementById('dc-compose')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});return;}state.messages.push({role:'user',text:look.label});state.source={text:look.label,image:null};state.stage='working';state.choices=[];state.followup=null;ask(look.label,null,'',null,look.id);}
     else if(action==='shuffle'){shuffleLooks();paint();}
     else if(action==='mascot'){pickMascot();paint();}
     else if(action==='idea'){state.draft=account()?.profile?.custom||'';paint(true);}
@@ -300,12 +303,12 @@
     else if(action==='pick-model'){state.model=button.dataset.id;state.menuOpen=false;try{localStorage.setItem('tbw-discover-model',state.model);}catch{}paint();}
     else if(action==='edit'){state.editing=true;paint();}
     else if(action==='edit-cancel'){state.editing=false;paint();}
-    else if(action==='explore-mall'){const next=root()?.nextElementSibling;next?.scrollIntoView({behavior:'smooth',block:'start'});}
+    else if(action==='explore-mall'){if(window.StickerStudio)location.hash='discover/mall';else{const next=root()?.nextElementSibling;next?.scrollIntoView({behavior:'smooth',block:'start'});}}
     else if(action==='show-results')showResults();
     else if(action==='dismiss-ready')dismissReady();
     else if(action==='voice'){state.listening?stopListening():startListening();paint();}
-    else if(action==='new-chat')newChat();
-    else if(action==='open-chat')openChat(button.dataset.id);
+    else if(action==='new-chat'){if(window.StickerStudio&&!root()){location.hash='discover/ask';setTimeout(newChat,0);}else newChat();}
+    else if(action==='open-chat'){if(window.StickerStudio&&!root())location.hash='discover/ask';openChat(button.dataset.id);}
     else if(action==='delete-chat')deleteChat(button.dataset.id);
     else if(action==='limit-cancel'){state.chatLimit=null;paint();}
   });
@@ -316,5 +319,5 @@
   // Signing in or out changes whose chats these are.
   if(typeof window.addEventListener==='function')window.addEventListener('account-change',()=>{chatsRequested=false;if(!signedIn()){state.chats=[];}else loadChats();shuffleLooks();});
   const creditsCard = () => {loadWallet();if(!state.wallet)return '';const max=models().find(m=>m.label==='Max')||models()[0],lite=models().find(m=>m.label==='Lite');return `<section class="dc-credits-card"><span class="dc-kicker">Discover credits</span><strong>${state.wallet.remaining} credits left</strong><small>${searchesLeft(max)} ${max.label} searches${lite?` or ${searchesLeft(lite)} ${lite.label}`:''} · free questions don’t count</small></section>`;};
-  window.DiscoverConversation={render:()=>{loadWallet();loadChats();loadLooks();return content();},creditsCard};
+  window.DiscoverConversation={homeChats:()=>{loadWallet();loadChats();return renderChats();},balance:()=>{loadWallet();return state.wallet?.remaining??null;},render:()=>{loadWallet();loadChats();loadLooks();return content();},creditsCard};
 })();

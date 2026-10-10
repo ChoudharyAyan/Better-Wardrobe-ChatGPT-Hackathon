@@ -19,15 +19,16 @@ test('Discover opens as a prompt-first conversation, not an image-only upload',(
 
 // A tiny DOM-less harness: the script only needs document listeners and a node to paint into.
 function harness(replies){
- const listeners={},calls=[];let latest='';
- const page={set outerHTML(value){latest=value;}};
- const context={window:{},document:{addEventListener:(event,fn)=>{listeners[event]=fn;},getElementById:id=>id==='discover-conversation'?page:null},AbortController,
+ const listeners={},calls=[],renders=[];let latest='';
+ const page={set outerHTML(value){latest=value;renders.push(value);}};
+ const context={window:{},document:{addEventListener:(event,fn)=>{listeners[event]=fn;},getElementById:id=>id==='discover-conversation'?page:null},AbortController,TextDecoder,Uint8Array,
   FormData:class{constructor(form){this.v=form.values;}get(k){return this.v[k];}},
-  fetch:async(url,options={})=>{const action=url.split('/').pop();const body=options.body?JSON.parse(options.body):{};calls.push({action,body});const reply=typeof replies[action]==='function'?replies[action](body):replies[action];return {ok:reply?.status?reply.status<400:true,status:reply?.status||200,json:async()=>await reply};}};
+  fetch:async(url,options={})=>{const action=url.split('/').pop();const body=options.body?JSON.parse(options.body):{};calls.push({action,body,headers:options.headers});const reply=typeof replies[action]==='function'?replies[action](body):replies[action];if(reply?.events){const chunks=reply.events.map(event=>new TextEncoder().encode(JSON.stringify(event)+'\n'));let i=0;return {ok:true,status:200,headers:{get:()=> 'application/x-ndjson'},body:{getReader:()=>({read:async()=>i<chunks.length?{done:false,value:chunks[i++]}:{done:true}})}};}return {ok:reply?.status?reply.status<400:true,status:reply?.status||200,json:async()=>reply};}};
+ context.TextEncoder=TextEncoder;
  vm.runInNewContext(script,context);
  const settle=()=>new Promise(r=>setImmediate(r));
  const click=(action,data={})=>listeners.click({target:{closest:sel=>sel==='[data-conversation]'?{dataset:{conversation:action,...data}}:null}});
- return {context,listeners,calls,latest:()=>latest,settle,click,ask:async text=>{listeners.input({target:{id:'dc-text',value:text}});listeners.submit({target:{id:'dc-compose'},preventDefault(){}});for(let i=0;i<4;i++)await settle();}};
+ return {context,listeners,calls,renders,latest:()=>latest,settle,click,ask:async text=>{listeners.input({target:{id:'dc-text',value:text}});listeners.submit({target:{id:'dc-compose'},preventDefault(){}});for(let i=0;i<4;i++)await settle();}};
 }
 const shirt={category:'shirt',colour:'black',fit:'relaxed',pattern:'',details:'linen',subtype:'',features:'',department:'menswear'};
 const found={results:[{title:'Black linen shirt',url:'https://www.snitch.com/p',merchant:'Snitch',priceText:'₹1,499',image:'https://img.example/p.jpg'}],warnings:[],
@@ -49,6 +50,15 @@ test('asking goes straight to results: one interpret, one search, no confirmatio
  assert.match(html,/How I searched · 3 searches · 4\.2s/);
  assert.equal((html.match(/<code>black linen shirt men<\/code>/g)||[]).length,1,'a phrase sent to two routes is listed once');
  assert.match(html,/24 found · 8 off-topic, wrong colour or outside India removed · 6 compared against your piece · <b>1 shown<\/b>/);
+});
+
+test('Discover uses server progress instead of cycling through pretend search stages',async()=>{
+ const h=harness({interpret:{events:[{type:'progress',percent:10,label:'Understanding your request'},{type:'progress',percent:100,label:'Search details ready'},{type:'result',data:{attributes:shirt,query:'black linen shirt',budget:null,credits:{remaining:105,cost:15},turn:'t'}}]},search:{events:[{type:'progress',percent:35,label:'1 of 2 search routes completed'},{type:'progress',percent:100,label:'Your matches are ready'},{type:'result',data:found}]}});
+ await h.ask('black linen shirt');
+ assert.ok(h.calls.every(call=>call.headers?.Accept==='application/x-ndjson'));
+ assert.ok(h.renders.some(html=>html.includes('Understanding your request')&&html.includes('aria-valuenow="10"')));
+ assert.ok(h.renders.some(html=>html.includes('1 of 2 search routes completed')&&html.includes('aria-valuenow="35"')));
+ assert.match(h.latest(),/Black linen shirt/);
 });
 
 test('the in-app model dropdown offers Max and Lite and the choice travels with the request',async()=>{

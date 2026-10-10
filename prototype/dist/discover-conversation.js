@@ -4,7 +4,7 @@
   // shopping searches: the first, plus one free refine. Chats are saved per guest (three in the beta).
   const state = {
     messages:[],draft:'',pending:null,busy:false,stage:'start',choices:[],source:null,followup:null,
-    current:null,results:null,turn:null,controller:null,progress:'',loadingSince:0,showMallHint:false,
+    current:null,results:null,turn:null,controller:null,progress:'',loadingSince:0,
     model:'',wallet:null,menuOpen:false,editing:false,listening:false,
     chats:[],chatId:null,chatTitle:'',chatLimit:null,readyPill:false
   };
@@ -108,14 +108,12 @@
   }
 
   // ---- search flow ----------------------------------------------------------------------------
-  let rotation=null,hintTimer=null;
+  let rotation=null;
   function startLoading(label){
-    if(!state.busy)pickMascot();state.busy=true;state.progress=label;state.loadingSince=Date.now();state.showMallHint=false;paint();
+    if(!state.busy)pickMascot();state.busy=true;state.progress=label;state.loadingSince=Date.now();paint();
     let i=0;if(typeof setInterval==='function'){clearInterval(rotation);rotation=setInterval(()=>{const lines=loadingLines();i=Math.min(i+1,lines.length-1);const line=document.getElementById?.('dc-loading-line');if(line)line.textContent=lines[i];},2200);}
-    // Long searches: invite people to browse the mall and tell them when results land.
-    if(typeof setTimeout==='function'){clearTimeout(hintTimer);hintTimer=setTimeout(()=>{if(state.busy){state.showMallHint=true;paint();}},4000);}
   }
-  function stopLoading(){state.busy=false;state.progress='';state.showMallHint=false;if(typeof clearInterval==='function')clearInterval(rotation);if(typeof clearTimeout==='function')clearTimeout(hintTimer);}
+  function stopLoading(){state.busy=false;state.progress='';if(typeof clearInterval==='function')clearInterval(rotation);}
   const metaFor = data => data.credits?(data.credits.cost?`${currentModel().label} · ${data.credits.cost} credits · ${data.credits.remaining} left`:`${currentModel().label} · free, nothing to search yet`):'';
 
   async function ask(text,image,target='',previous=null,look=''){
@@ -227,7 +225,7 @@
   // The same friend greets people on an empty Discover (design QA #20: a mascot instead of the star). Tap for another.
   const renderHello = () => {if(window.StickerStudio)return window.StickerStudio.guide('Words, a screenshot, or both. Your call.',112);const m=MASCOTS[mascot];return `<button type="button" class="dc-hello" data-conversation="mascot" aria-label="${escape(m.name)} says hi. Tap to meet another friend."><span class="dc-hello-bubble">Hi, I’m ${escape(m.name.split(' ')[0])} 👋</span><svg viewBox="0 0 100 100" aria-hidden="true">${m.svg}</svg><span class="dc-mascot-shadow" aria-hidden="true"></span></button>`;};
   window.TBWMascot={svg:()=>`<svg viewBox="0 0 100 100" aria-hidden="true">${MASCOTS[mascot].svg}</svg>`,name:()=>MASCOTS[mascot].name};
-  const renderLoading = () => !state.busy?'':`<div class="dc-loading" role="status" aria-live="polite">${renderMascot()}<p id="dc-loading-line">${escape(state.progress||loadingLines()[0])}</p>${state.showMallHint?`<div class="dc-mall-hint"><span>This one takes a moment. We’ll let you know when it’s ready.</span><button type="button" data-conversation="explore-mall">Explore the mall meanwhile ↓</button></div>`:''}<button type="button" class="dc-cancel" data-conversation="cancel">Cancel</button></div>`;
+  const renderLoading = () => !state.busy?'':`<div class="dc-loading" role="status" aria-live="polite">${renderMascot()}<p id="dc-loading-line">${escape(state.progress||loadingLines()[0])}</p><div class="dc-mall-hint"><span>Explore The Mall while I search for you. We’ll let you know when your results are ready.</span><button type="button" data-conversation="explore-mall">Explore The Mall →</button></div><button type="button" class="dc-cancel" data-conversation="cancel">Cancel</button></div>`;
   const field = (label,name,value,placeholder='') => `<label><span>${label}</span><input name="${name}" value="${escape(known(value))}" placeholder="${escape(placeholder)}"></label>`;
   const renderUnderstood = () => {
     const c=state.current;if(!c?.attributes)return '';const a=c.attributes;

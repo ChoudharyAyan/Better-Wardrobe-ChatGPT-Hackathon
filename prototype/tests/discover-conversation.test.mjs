@@ -23,7 +23,7 @@ function harness(replies){
  const page={set outerHTML(value){latest=value;}};
  const context={window:{},document:{addEventListener:(event,fn)=>{listeners[event]=fn;},getElementById:id=>id==='discover-conversation'?page:null},AbortController,
   FormData:class{constructor(form){this.v=form.values;}get(k){return this.v[k];}},
-  fetch:async(url,options={})=>{const action=url.split('/').pop();const body=options.body?JSON.parse(options.body):{};calls.push({action,body});const reply=typeof replies[action]==='function'?replies[action](body):replies[action];return {ok:reply?.status?reply.status<400:true,status:reply?.status||200,json:async()=>reply};}};
+  fetch:async(url,options={})=>{const action=url.split('/').pop();const body=options.body?JSON.parse(options.body):{};calls.push({action,body});const reply=typeof replies[action]==='function'?replies[action](body):replies[action];return {ok:reply?.status?reply.status<400:true,status:reply?.status||200,json:async()=>await reply};}};
  vm.runInNewContext(script,context);
  const settle=()=>new Promise(r=>setImmediate(r));
  const click=(action,data={})=>listeners.click({target:{closest:sel=>sel==='[data-conversation]'?{dataset:{conversation:action,...data}}:null}});
@@ -146,7 +146,7 @@ test('Sticker Studio trending cards fill the draft and only search on explicit s
  const h=harness({credits:{remaining:120},looks:{looks:[look]},interpret:{attributes:shirt,query:'gold aviator sunglasses',turn:'look-ticket'},search:found});
  h.context.window.fetch=h.context.fetch;
  h.context.window.dispatchEvent=()=>{};h.context.Event=class {};
- h.context.window.StickerStudio={guide:()=>'',lookArt:()=>'',modelModes:()=>'',promptChips:()=>'',skeletons:()=>''};
+ h.context.window.StickerStudio={guide:()=>'',lookArt:()=>'',modelModes:()=>'',promptChips:()=>'',modelModes:()=>'',skeletons:()=>'',lookSource:()=>'',skeletons:()=>''};
  h.context.window.DiscoverConversation.render();for(let i=0;i<4;i++)await h.settle();
  await h.click('look',{index:'0'});
  assert.match(h.latest(),/Don Draper’s gold aviators<\/textarea>/);
@@ -154,4 +154,25 @@ test('Sticker Studio trending cards fill the draft and only search on explicit s
  await h.ask(look.label);
  const interpret=h.calls.find(c=>c.action==='interpret');assert.equal(interpret.body.look,look.id,'researched look identity is preserved');
  assert.equal(h.calls.filter(c=>c.action==='search').length,1);
+});
+
+
+test('Mall invitation appears immediately and browsing keeps the search running',async()=>{
+ let finish;const pending=new Promise(resolve=>{finish=resolve;});
+ const h=harness({interpret:pending,search:found});
+ h.context.window.StickerStudio={guide:()=>'',subnav:()=>'',promptChips:()=>'',modelModes:()=>'',skeletons:()=>'',lookSource:()=>''};
+ h.context.location={hash:'#discover/ask'};h.context.Event=Event;h.context.window.dispatchEvent=()=>{};
+ h.context.window.DiscoverConversation.render();
+ await h.ask('black linen shirt');
+ assert.match(h.latest(),/Explore The Mall while I search for you/);
+ assert.match(h.latest(),/data-conversation="explore-mall"/);
+ assert.match(h.latest(),/We’ll let you know when your results are ready/);
+ h.click('explore-mall');await h.settle();
+ assert.equal(h.context.location.hash,'discover/mall');
+ assert.deepEqual(h.calls.map(c=>c.action),['interpret']);
+ finish({attributes:shirt,query:'black linen shirt',question:'',turn:'ticket'});
+ for(let i=0;i<6;i++)await h.settle();
+ assert.deepEqual(h.calls.map(c=>c.action),['interpret','search']);
+ assert.match(h.context.window.DiscoverConversation.render(),/Black linen shirt/);
+ assert.doesNotMatch(h.context.window.DiscoverConversation.render(),/data-conversation="explore-mall"/);
 });

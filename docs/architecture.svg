@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 860" width="1200" height="860" role="img" aria-label="WardrobeOS system design: UI, frontend, backend and external services feed a central LLM reasoning engine, backed by data stores, with a feedback loop returning user actions as context."><style>
+svg{
+  --bg:#f8f4f2; --surface:#ffffff; --fg:#2b2326; --muted:#76696d; --line:#ddd2ce;
+  --rose:#b94b66; --rose-soft:#f7e4e9; --rose-line:#e6b7c3; --sage:#4f7a68; --sage-soft:#e6efea;
+  
+ font-family:Montserrat,"Helvetica Neue",Arial,sans-serif}
+@media (prefers-color-scheme:dark){svg{
+  --bg:#1a1517; --surface:#241e21; --fg:#f2ebed; --muted:#a8999e; --line:#3d3337;
+  --rose:#e57e98; --rose-soft:#36212a; --rose-line:#6b3646; --sage:#86b7a1; --sage-soft:#1f2c27; }}
+.bg{fill:var(--surface)}
+.box{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.inner{fill:var(--surface);stroke:var(--rose-line);stroke-width:1.2}
+.engine{fill:var(--rose-soft);stroke:var(--rose);stroke-width:2}
+.step{fill:var(--surface);stroke:var(--rose);stroke-width:1.4}
+.ctx{fill:var(--surface);stroke:var(--rose-line);stroke-width:1.2;stroke-dasharray:0}
+.db{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.cyl{fill:var(--sage-soft);stroke:var(--sage);stroke-width:1.3}
+.fb{fill:var(--sage-soft);stroke:var(--sage);stroke-width:1.6}
+.fstep{fill:var(--surface);stroke:var(--sage);stroke-width:1.2}
+.chip{fill:var(--bg);stroke:var(--line)}
+.chipd{fill:none;stroke:var(--muted)}
+.mchip{fill:var(--rose-soft);stroke:none}
+.num{fill:var(--rose)}
+text{fill:var(--fg)}
+.h1{font-size:19px;font-weight:700;fill:var(--rose)}
+.h1f{font-size:17px;font-weight:700;fill:var(--sage)}
+.h2{font-size:15px;font-weight:700}
+.h2b{font-size:14px;font-weight:700}
+.h3{font-size:13.5px;font-weight:700}
+.sub{font-size:12px;fill:var(--muted)}
+.tx{font-size:12.5px}
+.txs{font-size:12px}
+.lab{font-size:11.5px;fill:var(--muted);font-weight:500}
+.eyebrow{font-size:12px;font-weight:700;fill:var(--muted);letter-spacing:.04em}
+.chipt{font-size:11.5px;fill:var(--fg)}
+.mchipt{font-size:10.5px;font-weight:600;fill:var(--rose)}
+.numt{font-size:12px;font-weight:700;fill:var(--surface)}
+.ar{fill:none;stroke:var(--muted);stroke-width:1.6}
+.ar2{fill:none;stroke:var(--rose);stroke-width:1.8}
+.ar3{fill:none;stroke:var(--sage);stroke-width:1.8}
+.mk{fill:var(--muted)} .mk2{fill:var(--rose)} .mk3{fill:var(--sage)}
+
+</style><rect class="bg" width="1200" height="860"/><defs>
+<marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+<marker id="ms" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="mk"/></marker>
+<marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="mk2"/></marker>
+<marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="mk3"/></marker>
+</defs><rect x="20" y="20" width="260" height="150" rx="10" class="box"/>
+<text x="36" y="46" class="h2" text-anchor="start">UI</text>
+<text x="36" y="64" class="sub" text-anchor="start">What people use</text>
+<rect x="36" y="80" width="75.19999999999999" height="24" rx="12" class="chip"/>
+<text x="73.6" y="96" class="chipt" text-anchor="middle">Discover</text>
+<rect x="119.19999999999999" y="80" width="95.89999999999999" height="24" rx="12" class="chip"/>
+<text x="167.14999999999998" y="96" class="chipt" text-anchor="middle">My Wardrobe</text>
+<rect x="36" y="110" width="75.19999999999999" height="24" rx="12" class="chip"/>
+<text x="73.6" y="126" class="chipt" text-anchor="middle">Style Me</text>
+<rect x="119.19999999999999" y="110" width="75.19999999999999" height="24" rx="12" class="chip"/>
+<text x="156.79999999999998" y="126" class="chipt" text-anchor="middle">The Mall</text>
+<rect x="36" y="140" width="82.1" height="24" rx="12" class="chip"/>
+<text x="77.05" y="156" class="chipt" text-anchor="middle">Community</text>
+<rect x="126.1" y="140" width="68.3" height="24" rx="12" class="chip"/>
+<text x="160.25" y="156" class="chipt" text-anchor="middle">Profile</text>
+<rect x="320" y="20" width="260" height="150" rx="10" class="box"/>
+<text x="336" y="46" class="h2" text-anchor="start">Frontend</text>
+<text x="336" y="64" class="sub" text-anchor="start">Mobile-first web app</text>
+<text x="336" y="90" class="tx" text-anchor="start">Plain JS, HTML and CSS</text>
+<text x="336" y="110" class="tx" text-anchor="start">Hash routes, static on Vercel</text>
+<text x="336" y="130" class="tx" text-anchor="start">Browser storage for wardrobe</text>
+<text x="336" y="150" class="tx" text-anchor="start">Chrome extension for orders</text>
+<rect x="620" y="20" width="260" height="150" rx="10" class="box"/>
+<text x="636" y="46" class="h2" text-anchor="start">Backend</text>
+<text x="636" y="64" class="sub" text-anchor="start">Node API, one Vercel function</text>
+<text x="636" y="90" class="tx" text-anchor="start">Sign-in, discover, mall,</text>
+<text x="636" y="110" class="tx" text-anchor="start">community and imports</text>
+<text x="636" y="130" class="tx" text-anchor="start">Credits and hourly limits</text>
+<text x="636" y="150" class="tx" text-anchor="start">Spend guard, security headers</text>
+<rect x="920" y="20" width="260" height="150" rx="10" class="box"/>
+<text x="936" y="46" class="h2" text-anchor="start">External services</text>
+<text x="936" y="64" class="sub" text-anchor="start">Called only from the server</text>
+<text x="936" y="90" class="tx" text-anchor="start">OpenAI Responses, Decisions</text>
+<text x="936" y="110" class="tx" text-anchor="start">SerpApi Shopping, Lens, images</text>
+<text x="936" y="130" class="tx" text-anchor="start">Google sign-in and Photos</text>
+<text x="936" y="150" class="tx" text-anchor="start">Retailer sites for the mall</text>
+<path d="M284 95.0 H316" class="ar" marker-end="url(#m)"/>
+<path d="M584 95.0 H616" class="ar" marker-end="url(#m)"/>
+<path d="M884 95.0 H916" class="ar" marker-end="url(#m)"/>
+<path d="M750 174 V226" class="ar" marker-end="url(#m)"/>
+<text x="758" y="204" class="lab" text-anchor="start">Discover request</text>
+<path d="M1050 226 V176" class="ar" marker-end="url(#m)" marker-start="url(#ms)"/>
+<text x="1058" y="204" class="lab" text-anchor="start">Model and search calls</text>
+<rect x="20" y="230" width="1160" height="300" rx="16" class="engine"/>
+<text x="40" y="262" class="h1" text-anchor="start">LLM reasoning engine</text>
+<text x="272" y="262" class="sub" text-anchor="start">The core of WardrobeOS, runs server side</text>
+<rect x="40" y="286" width="180" height="160" rx="10" class="inner"/>
+<text x="54" y="310" class="h3" text-anchor="start">Inputs</text>
+<text x="54" y="334" class="tx" text-anchor="start">Screenshot or photo crop</text>
+<text x="54" y="355" class="tx" text-anchor="start">Confirmed attributes</text>
+<text x="54" y="376" class="tx" text-anchor="start">What the user typed</text>
+<text x="54" y="397" class="tx" text-anchor="start">Market: India or global</text>
+<text x="54" y="418" class="tx" text-anchor="start">Tier: Max or Lite</text>
+<rect x="244" y="286" width="134" height="160" rx="10" class="step"/>
+<circle cx="264" cy="308" r="11" class="num"/>
+<text x="264" y="312" class="numt" text-anchor="middle">1</text>
+<text x="282" y="313" class="h3" text-anchor="start">Understand</text>
+<text x="256" y="342" class="txs" text-anchor="start">Detect the piece</text>
+<text x="256" y="360" class="txs" text-anchor="start">and describe it</text>
+<rect x="250.6" y="410" width="120.8" height="22" rx="11" class="mchip"/>
+<text x="311.0" y="425" class="mchipt" text-anchor="middle">OpenAI Responses</text>
+<path d="M379 366 H389" class="ar2" marker-end="url(#m2)"/>
+<rect x="390" y="286" width="134" height="160" rx="10" class="step"/>
+<circle cx="410" cy="308" r="11" class="num"/>
+<text x="410" y="312" class="numt" text-anchor="middle">2</text>
+<text x="428" y="313" class="h3" text-anchor="start">Plan</text>
+<text x="402" y="342" class="txs" text-anchor="start">Turn attributes</text>
+<text x="402" y="360" class="txs" text-anchor="start">into a query and</text>
+<text x="402" y="378" class="txs" text-anchor="start">must-have details</text>
+<rect x="431.25" y="410" width="51.5" height="22" rx="11" class="mchip"/>
+<text x="457.0" y="425" class="mchipt" text-anchor="middle">Rules</text>
+<path d="M525 366 H535" class="ar2" marker-end="url(#m2)"/>
+<rect x="536" y="286" width="134" height="160" rx="10" class="step"/>
+<circle cx="556" cy="308" r="11" class="num"/>
+<text x="556" y="312" class="numt" text-anchor="middle">3</text>
+<text x="574" y="313" class="h3" text-anchor="start">Retrieve</text>
+<text x="548" y="342" class="txs" text-anchor="start">Shopping, Lens</text>
+<text x="548" y="360" class="txs" text-anchor="start">and image search</text>
+<text x="548" y="378" class="txs" text-anchor="start">in parallel</text>
+<rect x="570.95" y="410" width="64.1" height="22" rx="11" class="mchip"/>
+<text x="603.0" y="425" class="mchipt" text-anchor="middle">SerpApi</text>
+<path d="M671 366 H681" class="ar2" marker-end="url(#m2)"/>
+<rect x="682" y="286" width="134" height="160" rx="10" class="step"/>
+<circle cx="702" cy="308" r="11" class="num"/>
+<text x="702" y="312" class="numt" text-anchor="middle">4</text>
+<text x="720" y="313" class="h3" text-anchor="start">Judge</text>
+<text x="694" y="342" class="txs" text-anchor="start">Score category,</text>
+<text x="694" y="360" class="txs" text-anchor="start">details, colour</text>
+<text x="694" y="378" class="txs" text-anchor="start">and closeness</text>
+<rect x="698.05" y="410" width="101.89999999999999" height="22" rx="11" class="mchip"/>
+<text x="749.0" y="425" class="mchipt" text-anchor="middle">Decisions API</text>
+<path d="M817 366 H827" class="ar2" marker-end="url(#m2)"/>
+<rect x="828" y="286" width="134" height="160" rx="10" class="step"/>
+<circle cx="848" cy="308" r="11" class="num"/>
+<text x="848" y="312" class="numt" text-anchor="middle">5</text>
+<text x="866" y="313" class="h3" text-anchor="start">Rank</text>
+<text x="840" y="342" class="txs" text-anchor="start">Drop scores under</text>
+<text x="840" y="360" class="txs" text-anchor="start">70, rank by vibe</text>
+<text x="840" y="378" class="txs" text-anchor="start">match, India first</text>
+<rect x="834.6" y="410" width="120.8" height="22" rx="11" class="mchip"/>
+<text x="895.0" y="425" class="mchipt" text-anchor="middle">Vibe match score</text>
+<path d="M221 366 H242" class="ar2" marker-end="url(#m2)"/>
+<path d="M963 366 H986" class="ar2" marker-end="url(#m2)"/>
+<rect x="988" y="286" width="172" height="160" rx="10" class="inner"/>
+<text x="1002" y="310" class="h3" text-anchor="start">Outputs</text>
+<text x="1002" y="334" class="tx" text-anchor="start">Ranked vibe matches</text>
+<text x="1002" y="355" class="tx" text-anchor="start">Visual leads, unscored</text>
+<text x="1002" y="376" class="tx" text-anchor="start">Garment description</text>
+<text x="1002" y="397" class="tx" text-anchor="start">Store links and prices</text>
+<rect x="1002" y="414" width="152.29999999999998" height="24" rx="12" class="chipd" stroke-dasharray="5 4"/>
+<text x="1078.15" y="430" class="chipt" text-anchor="middle">Outfit ideas, planned</text>
+<rect x="40" y="462" width="1120" height="52" rx="12" class="ctx"/>
+<text x="56" y="493" class="h3" text-anchor="start">Context in every call</text>
+<rect x="236" y="476" width="109.7" height="24" rx="12" class="chip"/>
+<text x="290.85" y="492" class="chipt" text-anchor="middle">Style persona</text>
+<rect x="355.7" y="476" width="116.6" height="24" rx="12" class="chip"/>
+<text x="414.0" y="492" class="chipt" text-anchor="middle">Owned wardrobe</text>
+<rect x="482.29999999999995" y="476" width="95.89999999999999" height="24" rx="12" class="chip"/>
+<text x="530.25" y="492" class="chipt" text-anchor="middle">Saved finds</text>
+<rect x="588.1999999999999" y="476" width="144.2" height="24" rx="12" class="chip"/>
+<text x="660.3" y="492" class="chipt" text-anchor="middle">Past search traces</text>
+<rect x="742.3999999999999" y="476" width="102.8" height="24" rx="12" class="chip"/>
+<text x="793.7999999999998" y="492" class="chipt" text-anchor="middle">Credits left</text>
+<rect x="855.1999999999998" y="476" width="171.79999999999998" height="24" rx="12" class="chip"/>
+<text x="941.0999999999998" y="492" class="chipt" text-anchor="middle">Timeouts and spend cap</text>
+<path d="M600 534 V586" class="ar" marker-end="url(#m)"/>
+<text x="608" y="564" class="lab" text-anchor="start">Reads and writes</text>
+<rect x="20" y="590" width="260" height="84" rx="10" class="db"/>
+<path d="M36 606 q11 -6 22 0 v16 q-11 6 -22 0 z" class="cyl"/>
+<text x="68" y="619" class="h2b" text-anchor="start">Postgres on Neon</text>
+<text x="36" y="644" class="txs" text-anchor="start">Accounts, credits,</text>
+<text x="36" y="662" class="txs" text-anchor="start">chats and community</text>
+<rect x="320" y="590" width="260" height="84" rx="10" class="db"/>
+<path d="M336 606 q11 -6 22 0 v16 q-11 6 -22 0 z" class="cyl"/>
+<text x="368" y="619" class="h2b" text-anchor="start">Browser storage</text>
+<text x="336" y="644" class="txs" text-anchor="start">Wardrobe, persona,</text>
+<text x="336" y="662" class="txs" text-anchor="start">saved finds and looks</text>
+<rect x="620" y="590" width="260" height="84" rx="10" class="db"/>
+<path d="M636 606 q11 -6 22 0 v16 q-11 6 -22 0 z" class="cyl"/>
+<text x="668" y="619" class="h2b" text-anchor="start">Replay cache</text>
+<text x="636" y="644" class="txs" text-anchor="start">Exact searches, 5 min,</text>
+<text x="636" y="662" class="txs" text-anchor="start">up to 50 entries</text>
+<rect x="920" y="590" width="260" height="84" rx="10" class="db"/>
+<path d="M936 606 q11 -6 22 0 v16 q-11 6 -22 0 z" class="cyl"/>
+<text x="968" y="619" class="h2b" text-anchor="start">Mall feed</text>
+<text x="936" y="644" class="txs" text-anchor="start">JSON snapshot, refreshed</text>
+<text x="936" y="662" class="txs" text-anchor="start">every 6 h by GitHub Actions</text>
+<text x="20" y="580" class="eyebrow" text-anchor="start">Data</text>
+<rect x="20" y="730" width="1160" height="110" rx="16" class="fb"/>
+<text x="40" y="758" class="h1f" text-anchor="start">Feedback loop</text>
+<text x="200" y="758" class="sub" text-anchor="start">What people do in the app becomes context for the next request</text>
+<rect x="946" y="778" width="200" height="44" rx="22" class="fstep"/>
+<text x="1046.0" y="804" class="txs" text-anchor="middle">Sees matches and outfits</text>
+<path d="M943 800 H927" class="ar3" marker-end="url(#m3)"/>
+<rect x="724" y="778" width="200" height="44" rx="22" class="fstep"/>
+<text x="824.0" y="804" class="txs" text-anchor="middle">Confirms or edits attributes</text>
+<path d="M721 800 H705" class="ar3" marker-end="url(#m3)"/>
+<rect x="502" y="778" width="200" height="44" rx="22" class="fstep"/>
+<text x="602.0" y="804" class="txs" text-anchor="middle">Saves, keeps or swaps</text>
+<path d="M499 800 H483" class="ar3" marker-end="url(#m3)"/>
+<rect x="280" y="778" width="200" height="44" rx="22" class="fstep"/>
+<text x="380.0" y="804" class="txs" text-anchor="middle">Logs wears, confirms owned</text>
+<path d="M277 800 H261" class="ar3" marker-end="url(#m3)"/>
+<rect x="58" y="778" width="200" height="44" rx="22" class="fstep"/>
+<text x="158.0" y="804" class="txs" text-anchor="middle">Persona and wardrobe update</text>
+<path d="M1160 366 H1190 V800 H1150" class="ar3" marker-end="url(#m3)"/>
+<path d="M56 800 H8 V488 H36" class="ar3" marker-end="url(#m3)"/>
+<rect x="860" y="746" width="297.2" height="24" rx="12" class="chipd" stroke-dasharray="5 4"/>
+<text x="1008.6" y="762" class="chipt" text-anchor="middle">Planned: learn ranking from rejected matches</text></svg>

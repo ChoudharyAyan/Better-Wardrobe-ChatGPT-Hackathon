@@ -41,6 +41,10 @@ npm test
 
 ## Architecture
 
+![WardrobeOS system design](docs/architecture.svg)
+
+See [`docs/architecture.md`](docs/architecture.md) for a short walkthrough of the diagram.
+
 - `prototype/dist/` contains the browser app and static assets. It uses plain JavaScript, HTML, and CSS with hash-based navigation.
 - `prototype/server.mjs` is the local Node.js API server.
 - `prototype/api/index.mjs` adapts API routes for Vercel deployment.
